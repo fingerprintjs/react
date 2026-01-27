@@ -1,16 +1,3 @@
-## [3.0.0-test.3](https://github.com/fingerprintjs/fingerprintjs-pro-react/compare/v3.0.0-test.2...v3.0.0-test.3) (2026-01-27)
-
-
-### Features
-
-* add usePromiseStore to prevent duplicate async requests ([fb59d7f](https://github.com/fingerprintjs/fingerprintjs-pro-react/commit/fb59d7fafc7890e29678e2dae53a9f8c549f0acf))
-* rename package to `@fingerprint/react` ([4714fdf](https://github.com/fingerprintjs/fingerprintjs-pro-react/commit/4714fdf8526e1b62ab3ad4d84404672c02440da3))
-
-
-### Build System
-
-* **deps:** use stable 4.0.0 version of the @fingerprint/agent ([76a2fec](https://github.com/fingerprintjs/fingerprintjs-pro-react/commit/76a2fec8341cefdcfd323ca69ca80780d68a5c89))
-
 ## [3.0.0-test.2](https://github.com/fingerprintjs/fingerprintjs-pro-react/compare/v3.0.0-test.1...v3.0.0-test.2) (2026-01-06)
 
 
