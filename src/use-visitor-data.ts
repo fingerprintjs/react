@@ -31,7 +31,7 @@ export type UseVisitorDataReturn = VisitorQueryResult & {
  *    error,
  *    // A method to be called manually when the `immediate` field in the config is set to `false`:
  *    getData,
- *  } = useVisitorData({ extended: true, immediate: false });
+ *  } = useVisitorData({ immediate: false });
  * ```
  * Use the `useVisitorData` hook in your components to perform identification requests with the Fingerprint API. The returned object contains information about loading status, errors, and visitor.
  *
