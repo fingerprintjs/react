@@ -10,5 +10,7 @@
     "vite": "0.0.0",
     "webpack-based": "1.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "ready-trams-notice"
+  ]
 }
