@@ -7,7 +7,7 @@
     "build": "preact build --no-sw",
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch --no-sw",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'"
+    "lint": "eslint --max-warnings 0"
   },
   "dependencies": {
     "@fingerprint/react": "workspace:*",
@@ -15,13 +15,13 @@
     "preact-render-to-string": "^6.4.0"
   },
   "peerDependencies": {
-    "@typescript-eslint/eslint-plugin": "*",
-    "@typescript-eslint/parser": "*",
     "eslint": "*",
     "eslint-config-preact": "*",
     "typescript": "*"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.60.0",
     "dotenv": "^16.4.5",
     "preact-cli": "^3.5.1",
     "sirv-cli": "^2.0.2"

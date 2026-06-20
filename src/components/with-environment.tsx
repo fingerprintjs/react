@@ -23,13 +23,9 @@ export interface WithEnvironmentProps {
  * ```
  */
 class WithEnvironment extends Component<WithEnvironmentProps> {
-  constructor(props: WithEnvironmentProps) {
-    super(props)
-  }
-
   detectedEnv: EnvDetails | undefined
 
-  render(...args: any[]) {
+  render(...args: unknown[]) {
     if (!this.detectedEnv) {
       // unlike React, class components in Preact always receive `props` and `state` in render()
       // this is true for both Preact 8.x and 10.x

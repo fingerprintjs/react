@@ -8,7 +8,7 @@ import { describe, it, expect, vi } from 'vitest'
 
 describe('WithEnvironment', () => {
   it('enhances provided element with `env` prop', () => {
-    const Mock = vi.fn(() => <div>foo</div>) as FunctionComponent
+    const Mock: FunctionComponent = vi.fn(() => <div>foo</div>)
 
     render(
       <WithEnvironment>
@@ -56,6 +56,7 @@ describe('WithEnvironment', () => {
     )
 
     act(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       userEvent.click(container.querySelector('#test')!)
     })
 

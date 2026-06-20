@@ -96,6 +96,7 @@ export function useVisitorData(
 
   useEffect(() => {
     if (immediate) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- getData sets state as part of its async completion, not synchronously in the effect body
       getData().catch((error) => {
         console.error(`Failed to fetch visitor data on mount: ${error}`)
       })

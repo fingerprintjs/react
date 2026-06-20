@@ -47,6 +47,7 @@ function isReact(context: DetectEnvContext) {
  * */
 function isNext() {
   return runEnvChecks(
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     () => 'next' in window && Boolean((window as { next?: unknown }).next),
     () => document.querySelector('script[id=__NEXT_DATA__]')
   )
@@ -56,6 +57,7 @@ function isNext() {
  * Returns next version currently used by user.
  * */
 function getNextVersion() {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return (window as { next?: { version?: string } })?.next?.version
 }
 

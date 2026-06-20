@@ -158,6 +158,7 @@ describe('useVisitorData', () => {
     await actWait(1000)
 
     act(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       userEvent.click(container.querySelector('button')!)
     })
 
@@ -293,6 +294,7 @@ describe('useVisitorData', () => {
     )
 
     await act(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       await userEvent.click(container.querySelector('button')!)
     })
 
@@ -303,6 +305,7 @@ describe('useVisitorData', () => {
       // in between renders if this click were in the previous act block.
       // This ensures that the case is covered where the options
       // object does not semantically change.
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       await userEvent.click(container.querySelector('button')!)
     })
 
