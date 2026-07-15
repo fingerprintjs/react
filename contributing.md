@@ -1,31 +1,44 @@
-# Contributing to Fingerprint React integration
+# Contributing to Fingerprint React SDK
 
 ## Working with code
 
-We prefer using [pnpm](https://pnpm.io/) for installing dependencies and running scripts.
+We use [pnpm](https://pnpm.io/) for installing dependencies and running scripts.
 
-The main branch is locked for the push action. For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues, first.
-
-### Development playground
-
-There are 4 demo pages for this integration:
-
-1. In `/examples/create-react-app` folder. It is a rich demo with scenarios of using different caching strategies. You can find more info about configuration and starting demo in the [readme](examples/create-react-app/README.md).
-2. In `/examples/next` folder. It is a demo built with NextJS that allows testing SSR scenarios. You can find more info about configuration and starting demo in the [readme](examples/next/README.md).
-3. In `/examples/next-appDir` folder. It is the same demo built with NextJS, but with new `app` directory approach. You can find more info about configuration and starting demo in the [readme](examples/next-appDir/README.md).
-4. In `/examples/preact` folder. It is a demo built with Preact. You can find more info about configuration and starting demo in the [readme](examples/preact/README.md).
-5. In `/examples/webpack-based` folder. It is a simple demo built with raw webpack.
-
-❗ Build projects before testing integration. First build the `@fingerprint/react` package, and then start any of the example apps.
+The main branch is locked for the push action. For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues first.
 
 ### How to build
 
 Just run:
 
 ```shell
+pnpm install
 pnpm build
 ```
 
+### Development playground
+
+Six demo apps are available:
+
+1. [`create-react-app`](examples/create-react-app/README.md) — a rich demo covering different caching strategies.
+2. [`next`](examples/next/README.md) — a Next.js demo for testing SSR scenarios.
+3. [`next-appDir`](examples/next-appDir/README.md) — the same Next.js demo using the `app` directory.
+4. [`preact`](examples/preact/README.md) — a Preact demo.
+5. [`vite`](examples/vite/README.md) — a Vite demo.
+6. [`webpack-based`](examples/webpack-based/README.md) — a demo using raw webpack.
+
+Build the SDK before building or starting an example app. From the repository root, run:
+
+```shell
+pnpm build
+```
+
+Build an example with `pnpm --filter <package-name> build`, or start it with
+`pnpm --filter <package-name> dev`.
+
+For example:
+```shell
+pnpm --filter vite-example dev
+```
 ### Code style
 
 The code style is controlled by [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/). Run to check that the code style is ok:
@@ -50,20 +63,36 @@ To run tests you can use IDE instruments or just run:
 pnpm test
 ```
 
+To run tests once with a coverage report:
+
+```shell
+pnpm test:coverage
+```
+
 To check the distributive TypeScript declarations, build the project and run:
 
 ```shell
 pnpm test:dts
 ```
 
+### API reference docs
+
+The API reference is generated from the source with [TypeDoc](https://typedoc.org/). Regenerate it into the (git-ignored) `docs/` folder with:
+
+```shell
+pnpm docs
+```
+
 ### How to publish
 
-The library is automatically released and published to NPM on every push to the main branch if there are relevant changes using [semantic-release](https://github.com/semantic-release/semantic-release) with following plugins:
+Releases are managed with [changesets](https://github.com/changesets/changesets).
 
-- [@semantic-release/commit-analyzer](https://github.com/semantic-release/commit-analyzer)
-- [@semantic-release/release-notes-generator](https://github.com/semantic-release/release-notes-generator)
-- [@semantic-release/changelog](https://github.com/semantic-release/changelog)
-- [@semantic-release/npm](https://github.com/semantic-release/npm)
-- [@semantic-release/github](https://github.com/semantic-release/github)
+When you make a change that should be released, add a changeset to your pull request:
 
-The workflow must be approved by one of the maintainers, first.
+```shell
+pnpm changeset
+```
+
+This prompts you to select the bump type (`major`, `minor`, or `patch`) and to write a summary that becomes the changelog entry. Commit the generated file in `.changeset/` along with your changes.
+
+When PRs with changesets are merged to `main`, the [release workflow](.github/workflows/release.yml) opens (or updates) a "Version Packages" pull request that bumps the version and updates the changelog. Merging that pull request builds the package and publishes it to NPM.

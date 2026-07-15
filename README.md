@@ -12,8 +12,8 @@
   <a href="https://fingerprintjs.github.io/react/coverage/"><img src="https://fingerprintjs.github.io/react/coverage/badges.svg" alt="coverage"></a>
   <a href="https://www.npmjs.com/package/@fingerprint/react"><img src="https://img.shields.io/npm/v/@fingerprint/react.svg" alt="Current NPM version"></a>
   <a href="https://www.npmjs.com/package/@fingerprint/react"><img src="https://img.shields.io/npm/dm/@fingerprint/react.svg" alt="Monthly downloads from NPM"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/:license-mit-blue.svg" alt="MIT license"></a>
-  <a href="https://discord.gg/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
+  <a href="https://opensource.org/license/MIT"><img src="https://img.shields.io/:license-mit-blue.svg" alt="MIT license"></a>
+  <a href="https://discord.com/invite/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
   <a href="https://fingerprintjs.github.io/react/"><img src="https://img.shields.io/badge/-Documentation-green" alt="Documentation"></a>
 </p>
 
@@ -69,7 +69,7 @@ pnpm add @fingerprint/react
 
 ## Getting started
 
-In order to identify visitors, you'll need a Fingerprint account (you can [sign up for free](https://dashboard.fingerprint.com/signup/)).
+In order to identify visitors, you'll need a Fingerprint account (you can [sign up for free](https://dashboard.fingerprint.com/signup)).
 To get your API key and get started, see the [Fingerprint Quick Start Guide](https://docs.fingerprint.com/docs/quick-start-guide).
 
 ### 1. Wrap your application (or component) in `<FingerprintProvider>`.
@@ -77,8 +77,8 @@ To get your API key and get started, see the [Fingerprint Quick Start Guide](htt
 - Set `apiKey` to your Fingerprint [Public API Key](https://dashboard.fingerprint.com/api-keys).
 - Set `region` if you have chosen a non-global [region](https://docs.fingerprint.com/docs/regions) during registration.
 - Set `endpoints` if you are using [one of our proxy integrations to increase accuracy](https://docs.fingerprint.com/docs/protecting-the-javascript-agent-from-adblockers) and effectiveness of visitor identification.
-- You can use all the [start options](https://docs.fingerprint.com/reference/js-agent-v4-start-function#start-options) available in the JavaScript agent `start()` function.
-- Caching is disabled by default. To enable caching, pass the JavaScript agent [`cache` start option](https://docs.fingerprint.com/reference/js-agent-v4-start-function#cache).
+- You can use all the [start options](https://docs.fingerprint.com/reference/js-agent-start-function#start-options) available in the JavaScript agent `start()` function.
+- Caching is disabled by default. To enable caching, pass the JavaScript agent [`cache` start option](https://docs.fingerprint.com/reference/js-agent-start-function#cache).
 
 ```jsx
 // src/index.js
@@ -87,12 +87,12 @@ import ReactDOM from 'react-dom/client'
 import { FingerprintProvider } from '@fingerprint/react'
 import App from './App'
 
-const root = ReactDOM.createRoot(document.getElementById('app'))
+const root = ReactDOM.createRoot(document.getElementById('root'))
 
 // <FingerprintProvider /> supports the same options as `start()` function.
 root.render(
   <FingerprintProvider
-    apiKey='your-public-api-key'
+    apiKey='PUBLIC_API_KEY'
     cache={{ storage: 'sessionStorage', duration: 3600 }}
   >
     <App />
@@ -131,7 +131,7 @@ The `useVisitorData` hook also returns a `getData` method you can use to make an
 
 - You can pass `{ immediate: false }` to `useVisitorData` to disable automatic visitor identification on render.
 
-Both `useVisitorData` and `getData` accept all the [get options](https://docs.fingerprint.com/reference/get-function#get-options) available in the JavaScript agent `get` function.
+Both `useVisitorData` and `getData` accept all the [get options](https://docs.fingerprint.com/reference/js-agent-get-function#get-options) available in the JavaScript agent `get` function.
 
 The returned v4 visitor data uses raw response field names in snake_case, for example `visitor_id` and `event_id`.
 
@@ -209,7 +209,7 @@ function App() {
 
 ## Error handling
 
-The `getData` function throws errors directly from the JS Agent without changing them. See [JS Agent error handling](https://docs.fingerprint.com/reference/js-agent-v4-error-handling) for more details.
+The `getData` function throws errors directly from the JS Agent without changing them. See [JS Agent error handling](https://docs.fingerprint.com/reference/js-agent-error-handling) for more details.
 
 ## API Reference
 

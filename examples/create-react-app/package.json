@@ -13,7 +13,8 @@
     "typescript": "*"
   },
   "scripts": {
-    "start": "PORT=3001 DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "dev": "PORT=3001 DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "start": "pnpm dev",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build"
   },
   "browserslist": {

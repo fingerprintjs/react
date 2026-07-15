@@ -2,6 +2,12 @@ packages:
   - examples/*
   - ./
 
-onlyBuiltDependencies:
-  - core-js
-  - core-js-pure
+# pnpm 11 blocks dependency build scripts by default. esbuild powers the Vite
+# build, so allow it; the core-js scripts only print funding notices and the
+# legacy fsevents@1 native build fails on modern Node (it is optional), so keep
+# those disabled.
+allowBuilds:
+  core-js: false
+  core-js-pure: false
+  esbuild: true
+  fsevents: false
