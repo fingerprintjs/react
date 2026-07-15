@@ -57,7 +57,7 @@ describe('WithEnvironment', () => {
 
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userEvent.click(container.querySelector('#test')!)
+      void userEvent.click(container.querySelector('#test')!)
     })
 
     await actWait(250)

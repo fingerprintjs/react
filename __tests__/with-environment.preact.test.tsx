@@ -15,7 +15,7 @@ describe('WithEnvironment', () => {
     })
     it('should detect env as "preact"', async () => {
       const { WithEnvironment } = await import('../src/components/with-environment')
-      const PrintEnv = (props: { env?: { name: string } }) => h('div', null, props?.env?.name)
+      const PrintEnv = (props: { env?: { name: string } }) => h('div', null, props.env?.name)
 
       // @ts-expect-error -- preact's render signature does not match React's @testing-library/react types
       const { container } = preactRender(h(WithEnvironment, null, h(PrintEnv, null)))

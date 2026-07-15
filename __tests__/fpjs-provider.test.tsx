@@ -11,7 +11,7 @@ vi.mock('@fingerprint/agent', { spy: true })
 const mockStart = vi.mocked(agent.start)
 
 describe('FingerprintProvider', () => {
-  it('should configure an instance of the Fp Agent', async () => {
+  it('should configure an instance of the Fp Agent', () => {
     const loadOptions = getDefaultLoadOptions()
     const wrapper = createWrapper({
       cache: {

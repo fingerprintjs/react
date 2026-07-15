@@ -8,7 +8,7 @@ export interface DetectEnvParams {
   context: DetectEnvContext
 }
 
-type EnvCheckStrategy = () => unknown
+type EnvCheckStrategy = () => boolean
 
 function runEnvChecks(...strategies: EnvCheckStrategy[]) {
   if (typeof window === 'undefined') {
@@ -49,7 +49,7 @@ function isNext() {
   return runEnvChecks(
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     () => 'next' in window && Boolean((window as { next?: unknown }).next),
-    () => document.querySelector('script[id=__NEXT_DATA__]')
+    () => document.querySelector('script[id=__NEXT_DATA__]') !== null
   )
 }
 
@@ -58,7 +58,7 @@ function isNext() {
  * */
 function getNextVersion() {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return (window as { next?: { version?: string } })?.next?.version
+  return (window as { next?: { version?: string } }).next?.version
 }
 
 /**

@@ -1,4 +1,4 @@
-import { cloneElement, Component } from 'react'
+import { cloneElement, Component, type JSX } from 'react'
 
 import { getEnvironment } from '../get-env'
 import { type DetectEnvParams } from '../detect-env'

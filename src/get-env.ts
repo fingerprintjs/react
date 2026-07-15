@@ -4,7 +4,7 @@ import { detectEnvironment, type DetectEnvParams } from './detect-env'
 
 export function getEnvironment(params: DetectEnvParams): EnvDetails {
   try {
-    const jsonEnv = JSON.parse(env)
+    const jsonEnv: unknown = JSON.parse(env)
     if (isEnvDetails(jsonEnv)) {
       return jsonEnv
     }

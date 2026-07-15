@@ -32,7 +32,7 @@ describe('useVisitorData', () => {
     mockStart.mockReturnValue(mockAgent)
   })
 
-  it('should provide the Fp context', async () => {
+  it('should provide the Fp context', () => {
     const wrapper = createWrapper()
     const {
       result: { current },
@@ -97,7 +97,7 @@ describe('useVisitorData', () => {
     )
   })
 
-  it("shouldn't call getData on mount if 'immediate' option is set to false", async () => {
+  it("shouldn't call getData on mount if 'immediate' option is set to false", () => {
     mockGet.mockImplementation(() => mockGetResult)
 
     const wrapper = createWrapper()
@@ -141,7 +141,13 @@ describe('useVisitorData', () => {
 
       return (
         <>
-          <button onClick={() => setTag((prev) => prev + 1)}>Change options</button>
+          <button
+            onClick={() => {
+              setTag((prev) => prev + 1)
+            }}
+          >
+            Change options
+          </button>
           <pre>{JSON.stringify(data)}</pre>
         </>
       )
@@ -159,7 +165,7 @@ describe('useVisitorData', () => {
 
     act(() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userEvent.click(container.querySelector('button')!)
+      void userEvent.click(container.querySelector('button')!)
     })
 
     await actWait(1000)
@@ -279,7 +285,13 @@ describe('useVisitorData', () => {
       getDataValues.push(getData)
       return (
         <>
-          <button onClick={() => setCount((count) => count + 1)}>Increment count</button>
+          <button
+            onClick={() => {
+              setCount((count) => count + 1)
+            }}
+          >
+            Increment count
+          </button>
           <pre>{JSON.stringify(data)}</pre>
         </>
       )

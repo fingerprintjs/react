@@ -7,7 +7,7 @@ function getCacheKey(options?: GetOptions) {
     return ''
   }
 
-  return `${options.tag}-${options.linkedId}-${options.timeout}`
+  return `${String(options.tag)}-${String(options.linkedId)}-${String(options.timeout)}`
 }
 
 export type UsePromiseStoreReturn = {
