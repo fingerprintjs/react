@@ -71,7 +71,7 @@
     "@commitlint/cli": "^19.2.0",
     "@fingerprintjs/changesets-changelog-format": "^0.2.0",
     "@fingerprintjs/commit-lint-dx-team": "^0.0.2",
-    "@fingerprintjs/eslint-config-dx-team": "^2.0.0",
+    "@fingerprintjs/eslint-config-dx-team": "^3.0.0",
     "@fingerprintjs/prettier-config-dx-team": "^0.2.0",
     "@fingerprintjs/tsconfig-dx-team": "^0.0.2",
     "@testing-library/preact": "^3.2.4",
