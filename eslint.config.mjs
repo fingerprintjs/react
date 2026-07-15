@@ -36,16 +36,12 @@ const config = [
     files: ['**/*.{js,mjs,cjs,jsx}'],
     ...tseslint.configs.disableTypeChecked,
   },
-  // Tests lean on mocks and `any`; relax the noisiest type-aware rules there.
+  // vitest matchers like `expect.any()` return `any`, so asserting on mock call
+  // args trips no-unsafe-assignment. Relax it for tests only.
   {
     files: ['__tests__/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
   {
