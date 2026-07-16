@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack",
+    "lint": "eslint . --max-warnings 0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

@@ -115,6 +115,24 @@ describe('useVisitorData', () => {
     )
   })
 
+  it('should not deduplicate requests with distinct empty tag values', async () => {
+    mockGet.mockImplementation(async () => {
+      await wait(250)
+      return mockGetResult
+    })
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await Promise.all([
+      result.current.getData({ tag: undefined }),
+      result.current.getData({ tag: null }),
+      result.current.getData({ tag: '' }),
+    ])
+
+    expect(mockGet).toHaveBeenCalledTimes(3)
+  })
+
   it("shouldn't call getData on mount if 'immediate' option is set to false", () => {
     mockGet.mockImplementation(() => mockGetResult)
 

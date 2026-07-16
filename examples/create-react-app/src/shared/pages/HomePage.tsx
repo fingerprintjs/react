@@ -19,7 +19,12 @@ function HomePage() {
       <Toggler>
         <VisitorDataComponent />
       </Toggler>
-      <button className='clear-cache-button' onClick={() => clearCache()}>
+      <button
+        className='clear-cache-button'
+        onClick={() => {
+          clearCache()
+        }}
+      >
         Clear cache
       </button>
     </section>

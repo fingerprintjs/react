@@ -7,7 +7,7 @@
     "build": "preact build --no-sw",
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch --no-sw",
-    "lint": "eslint --max-warnings 0"
+    "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@fingerprint/react": "workspace:*",
@@ -15,14 +15,9 @@
     "preact-render-to-string": "^6.4.0"
   },
   "devDependencies": {
-    "eslint": "^9.39.2",
-    "eslint-config-preact": "^2.0.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
+    "dotenv": "^16.4.5",
     "preact-cli": "^3.5.1",
-    "prettier": "3.2.5",
     "sirv-cli": "^2.0.2",
-    "typescript": "*",
-    "typescript-eslint": "^8.60.0"
+    "typescript": "*"
   }
 }

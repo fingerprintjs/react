@@ -1,6 +1,6 @@
 import { PropsWithChildren, useState } from 'react'
 
-function Toggler({ children }: PropsWithChildren<{}>) {
+function Toggler({ children }: PropsWithChildren<object>) {
   const [showChildren, setShowChildren] = useState(true)
 
   return (
@@ -10,7 +10,12 @@ function Toggler({ children }: PropsWithChildren<{}>) {
         <b>caching algorithm</b> as you unmount the component with the fingerprint and mount it again thus calling the{' '}
         <code>useVisitorData</code> hook.
       </p>
-      <button className='toggle-button' onClick={() => setShowChildren((show) => !show)}>
+      <button
+        className='toggle-button'
+        onClick={() => {
+          setShowChildren((show) => !show)
+        }}
+      >
         {showChildren ? 'Hide' : 'Show'} visitor data
       </button>
       {showChildren && children}

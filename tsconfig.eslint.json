@@ -1,7 +1,17 @@
 {
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"noEmit": true
+		"noEmit": true,
+		"types": ["vite/client", "node"]
 	},
-	"include": ["src", "__tests__", "vite.config.ts", "vitest.config.ts"]
+	"include": [
+		"src",
+		"__tests__",
+		"vite.config.ts",
+		"vitest.config.ts",
+		"examples/**/*.ts",
+		"examples/**/*.tsx",
+		"examples/vite/src/vite-env.d.ts"
+	],
+	"exclude": ["examples/**/vite.config.ts", "examples/preact/**"]
 }

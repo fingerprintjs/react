@@ -25,12 +25,8 @@ function SignInPage() {
         className='form'
         onSubmit={(e) => {
           e.preventDefault()
-          getData().then((data) => {
-            if (data) {
-              // do something with the visitor data
-              // for example, append visitor data to the form data to send to your server
-              console.log(data)
-            }
+          void getData().then((visitorData) => {
+            console.log(visitorData)
           })
         }}
       >
@@ -43,7 +39,9 @@ function SignInPage() {
             required
             autoComplete='off'
             value={login}
-            onChange={(e) => setLogin(e.currentTarget.value)}
+            onChange={(e) => {
+              setLogin(e.currentTarget.value)
+            }}
           />
           <sub>will be used as linked_id param for the request</sub>
         </div>
@@ -55,12 +53,22 @@ function SignInPage() {
             name='password'
             required
             value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
+            onChange={(e) => {
+              setPassword(e.currentTarget.value)
+            }}
           />
         </div>
         <div className='form-control'>
           <label htmlFor='tag'>Tag:</label>
-          <input id='tag' type='text' name='tag' value={tag} onChange={(e) => setTag(e.currentTarget.value)} />
+          <input
+            id='tag'
+            type='text'
+            name='tag'
+            value={tag}
+            onChange={(e) => {
+              setTag(e.currentTarget.value)
+            }}
+          />
           <sub>will be used as tag param for the request</sub>
         </div>
         <button type='submit'>Submit</button>

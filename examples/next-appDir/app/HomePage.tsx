@@ -7,7 +7,7 @@ const HomePage = () => {
   const { isLoading, error, data, getData } = useVisitorData({ immediate: true })
 
   const reloadData = () => {
-    getData({})
+    void getData({})
   }
 
   return (

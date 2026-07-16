@@ -10,15 +10,15 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const config = [
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
-  { ignores: ['examples/'] },
+  {
+    ignores: ['examples/**/build/**', 'examples/**/dist/**', 'examples/**/.next/**', 'examples/**/node_modules/**'],
+  },
   ...cfg,
   {
     files: ['**/*.{ts,tsx}'],
     ...react.configs['recommended-type-checked'],
   },
   reactHooks.configs.flat['recommended-latest'],
-  // Point the type-aware rules at a lint-only tsconfig that covers the tests and
-  // root config files, not just `src` (the build tsconfig).
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     languageOptions: {
@@ -28,13 +28,14 @@ const config = [
       },
     },
   },
-  // Pure-JS config/scripts can't join a TS program; disable the type-aware rules there.
+  {
+    files: ['examples/preact/**/*.{ts,tsx}', 'examples/**/vite.config.ts'],
+    ...tseslint.configs.disableTypeChecked,
+  },
   {
     files: ['**/*.{js,mjs,cjs,jsx}'],
     ...tseslint.configs.disableTypeChecked,
   },
-  // vitest matchers like `expect.any()` return `any`, so asserting on mock call
-  // args trips no-unsafe-assignment. Relax it for tests only.
   {
     files: ['__tests__/**/*.{ts,tsx}'],
     rules: {

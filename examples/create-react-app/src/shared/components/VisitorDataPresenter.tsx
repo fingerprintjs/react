@@ -16,7 +16,8 @@ function VisitorDataPresenter({
   return (
     <div className='visitor-data'>
       <p>
-        <b>Visitor ID:</b> {isLoading ? 'Loading...' : data ? data.visitor_id : 'not established yet'}
+        <b>Visitor ID:</b>{' '}
+        {isLoading === true ? 'Loading...' : data !== undefined ? data.visitor_id : 'not established yet'}
       </p>
       {data && (
         <>

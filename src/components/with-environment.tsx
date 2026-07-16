@@ -10,7 +10,7 @@ export interface WithEnvironmentProps {
 
 /**
  * Utility component that synchronously detects the current environment (React/Preact etc.) and
- * provides it as a prop to the child element.
+ * passes it to the child render function.
  *
  * @example
  * ```jsx

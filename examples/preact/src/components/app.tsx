@@ -5,7 +5,7 @@ const App: FunctionalComponent = () => {
   const { isLoading, error, data, getData } = useVisitorData({ immediate: true })
 
   const reloadData = (): void => {
-    getData()
+    void getData()
   }
 
   return (
