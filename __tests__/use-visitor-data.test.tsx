@@ -212,7 +212,7 @@ describe('useVisitorData', () => {
   it('should enter the loading state when the automatic request source changes', async () => {
     const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
     const secondRequest = createDeferred<GetResult>()
-    let getVisitorData = vi.fn(() => Promise.resolve(mockGetResult))
+    let getVisitorData: ReturnType<typeof vi.fn<() => Promise<GetResult>>> = vi.fn(() => Promise.resolve(mockGetResult))
     const wrapper = ({ children }: PropsWithChildren<object>) => (
       <FingerprintContext.Provider value={{ getVisitorData }}>{children}</FingerprintContext.Provider>
     )
