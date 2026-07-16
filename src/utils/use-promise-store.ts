@@ -1,6 +1,5 @@
 import { GetOptions, GetResult } from '@fingerprint/agent'
-import { useCallback } from 'react'
-import { useConst } from './use-const'
+import { useCallback, useState } from 'react'
 
 function getCacheKey(options?: GetOptions) {
   if (!options) {
@@ -25,7 +24,7 @@ export type UsePromiseStoreReturn = {
  * requests with the same key are not duplicated while they are still pending.
  */
 export function usePromiseStore(): UsePromiseStoreReturn {
-  const store = useConst(new Map<string, Promise<GetResult>>())
+  const [store] = useState(() => new Map<string, Promise<GetResult>>())
 
   const doRequest = useCallback(
     (requestCallback: () => Promise<GetResult>, options?: GetOptions) => {

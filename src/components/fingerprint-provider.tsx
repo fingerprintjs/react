@@ -32,14 +32,7 @@ export interface FingerprintProviderOptions extends StartOptions {
  * For the implementation, see `ProviderWithEnv` component.
  */
 export function FingerprintProvider(props: PropsWithChildren<FingerprintProviderOptions>) {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const propsWithEnv = props as PropsWithChildren<ProviderWithEnvProps>
-
-  return (
-    <WithEnvironment>
-      <ProviderWithEnv {...propsWithEnv} />
-    </WithEnvironment>
-  )
+  return <WithEnvironment>{(env) => <ProviderWithEnv {...props} env={env} />}</WithEnvironment>
 }
 
 interface ProviderWithEnvProps extends FingerprintProviderOptions {

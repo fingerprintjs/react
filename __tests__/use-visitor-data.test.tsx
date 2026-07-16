@@ -1,7 +1,7 @@
-import { useVisitorData, UseVisitorDataReturn } from '../src'
-import { act, render, renderHook } from '@testing-library/react'
+import { FingerprintContext, useVisitorData, UseVisitorDataReturn } from '../src'
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react'
 import { actWait, createWrapper, wait } from './helpers'
-import { useEffect, useState } from 'react'
+import { type PropsWithChildren, useEffect, useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import * as agent from '@fingerprint/agent'
 import { GetResult } from '@fingerprint/agent'
@@ -24,6 +24,24 @@ const mockAgent = {
 vi.mock('@fingerprint/agent', { spy: true })
 
 const mockStart = vi.mocked(agent.start)
+
+function createDeferred<T>() {
+  let resolvePromise: ((value: T) => void) | undefined
+  const promise = new Promise<T>((resolve) => {
+    resolvePromise = resolve
+  })
+
+  return {
+    promise,
+    resolve(value: T) {
+      if (resolvePromise === undefined) {
+        throw new Error('Promise resolver was not initialized')
+      }
+
+      resolvePromise(value)
+    },
+  }
+}
 
 describe('useVisitorData', () => {
   beforeEach(() => {
@@ -154,8 +172,9 @@ describe('useVisitorData', () => {
     }
 
     const Wrapper = createWrapper()
+    const user = userEvent.setup()
 
-    const { container } = render(
+    render(
       <Wrapper>
         <Component />
       </Wrapper>
@@ -163,16 +182,50 @@ describe('useVisitorData', () => {
 
     await actWait(1000)
 
-    act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      void userEvent.click(container.querySelector('button')!)
-    })
+    await user.click(screen.getByRole('button', { name: 'Change options' }))
 
     await actWait(1000)
 
     expect(mockGet).toHaveBeenCalledTimes(2)
     expect(mockGet).toHaveBeenNthCalledWith(1, { tag: 1 })
     expect(mockGet).toHaveBeenNthCalledWith(2, { tag: 2 })
+  })
+
+  it('should enter the loading state when the automatic request source changes', async () => {
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+    const secondRequest = createDeferred<GetResult>()
+    let getVisitorData = vi.fn(() => Promise.resolve(mockGetResult))
+    const wrapper = ({ children }: PropsWithChildren<object>) => (
+      <FingerprintContext.Provider value={{ getVisitorData }}>{children}</FingerprintContext.Provider>
+    )
+    const hook = renderHook(() => useVisitorData(), { wrapper })
+
+    await waitFor(() => {
+      expect(hook.result.current.data).toEqual(mockGetResult)
+    })
+
+    getVisitorData = vi.fn(() => secondRequest.promise)
+    hook.rerender()
+
+    expect(hook.result.current).toMatchObject({
+      isLoading: true,
+      isFetched: false,
+      data: undefined,
+    })
+    await waitFor(() => {
+      expect(getVisitorData).toHaveBeenCalledTimes(1)
+    })
+
+    await act(async () => {
+      secondRequest.resolve(secondResult)
+      await secondRequest.promise
+    })
+
+    expect(hook.result.current).toMatchObject({
+      isLoading: false,
+      isFetched: true,
+      data: secondResult,
+    })
   })
 
   it('should correctly pass errors from agent', async () => {
@@ -298,28 +351,24 @@ describe('useVisitorData', () => {
     }
 
     const Wrapper = createWrapper()
+    const user = userEvent.setup()
 
-    const { container } = render(
+    render(
       <Wrapper>
         <Component />
       </Wrapper>
     )
 
-    await act(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      await userEvent.click(container.querySelector('button')!)
-    })
+    const incrementButton = screen.getByRole('button', { name: 'Increment count' })
+    await user.click(incrementButton)
 
-    await act(async () => {
-      // This second click needs to be in a separate act otherwise
-      // React will coalesce the state updates to the count into a
-      // a single update. Meaning that count will jump from 0 to 2
-      // in between renders if this click were in the previous act block.
-      // This ensures that the case is covered where the options
-      // object does not semantically change.
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      await userEvent.click(container.querySelector('button')!)
-    })
+    // This second click needs to be a separate awaited interaction otherwise
+    // React will coalesce the state updates to the count into a
+    // a single update. Meaning that count will jump from 0 to 2
+    // in between renders if this click were in the previous act block.
+    // This ensures that the case is covered where the options
+    // object does not semantically change.
+    await user.click(incrementButton)
 
     expect(getDataValues).toHaveLength(4)
     expect(getDataValues[0]).toBe(getDataValues[1])

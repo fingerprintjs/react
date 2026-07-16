@@ -40,17 +40,17 @@ export type UseVisitorDataReturn = VisitorQueryResult & {
 export function useVisitorData(
   { immediate, ...getOptions }: UseVisitorDataOptions = { immediate: true }
 ): UseVisitorDataReturn {
-  assertIsDefined(getOptions, 'getOptions')
-
   const { getVisitorData } = useContext<FingerprintContextInterface>(FingerprintContext)
 
-  const [currentGetOptions, setCurrentGetOptions] = useState(getOptions)
+  const [currentConfig, setCurrentConfig] = useState({ immediate, getOptions, getVisitorData })
   const [queryState, setQueryState] = useState<VisitorQueryResult>({
     isLoading: immediate,
     data: undefined,
     isFetched: false,
     error: undefined,
   })
+  const currentGetOptions = currentConfig.getOptions
+  const currentGetVisitorData = currentConfig.getVisitorData
 
   const getData = useCallback<UseVisitorDataReturn['getData']>(
     async (params = {}) => {
@@ -69,7 +69,7 @@ export function useVisitorData(
           ...params,
         }
 
-        const result = await getVisitorData(getDataOptions)
+        const result = await currentGetVisitorData(getDataOptions)
         setQueryState({
           isLoading: false,
           isFetched: true,
@@ -91,20 +91,56 @@ export function useVisitorData(
         throw error
       }
     },
-    [currentGetOptions, getVisitorData]
+    [currentGetOptions, currentGetVisitorData, setQueryState]
   )
 
   useEffect(() => {
     if (immediate) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- getData sets state as part of its async completion, not synchronously in the effect body
-      getData().catch((error: unknown) => {
-        console.error(`Failed to fetch visitor data on mount: ${String(error)}`)
+      void Promise.resolve()
+        .then(() => currentGetVisitorData(currentGetOptions))
+        .then(
+          (result) => {
+            setQueryState({
+              isLoading: false,
+              isFetched: true,
+              data: result,
+              error: undefined,
+            })
+          },
+          (unknownError: unknown) => {
+            const error = toError(unknownError)
+
+            setQueryState({
+              isLoading: false,
+              isFetched: false,
+              data: undefined,
+              error,
+            })
+            console.error(`Failed to fetch visitor data on mount: ${String(error)}`)
+          }
+        )
+    }
+  }, [immediate, currentGetOptions, currentGetVisitorData, setQueryState])
+
+  const getOptionsChanged = !Object.is(currentGetOptions, getOptions) && !deepEquals(currentGetOptions, getOptions)
+
+  const requestSourceChanged = currentGetVisitorData !== getVisitorData
+
+  if (currentConfig.immediate !== immediate || getOptionsChanged || requestSourceChanged) {
+    setCurrentConfig({
+      immediate,
+      getOptions: getOptionsChanged ? getOptions : currentGetOptions,
+      getVisitorData,
+    })
+
+    if (immediate) {
+      setQueryState({
+        isLoading: true,
+        isFetched: false,
+        data: undefined,
+        error: undefined,
       })
     }
-  }, [immediate, getData])
-
-  if (!Object.is(currentGetOptions, getOptions) && !deepEquals(currentGetOptions, getOptions)) {
-    setCurrentGetOptions(getOptions)
   }
 
   return useMemo(

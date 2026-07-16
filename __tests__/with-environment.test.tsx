@@ -1,37 +1,28 @@
-import { FunctionComponent } from 'react'
-import { act, render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { WithEnvironment } from '../src/components/with-environment'
 import { Link, MemoryRouter, Route, Routes } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
-import { actWait } from './helpers'
 import { describe, it, expect, vi } from 'vitest'
 
 describe('WithEnvironment', () => {
   it('enhances provided element with `env` prop', () => {
-    const Mock: FunctionComponent = vi.fn(() => <div>foo</div>)
+    const renderChild = vi.fn(() => <div>foo</div>)
 
-    render(
-      <WithEnvironment>
-        <Mock />
-      </WithEnvironment>
-    )
+    render(<WithEnvironment>{renderChild}</WithEnvironment>)
 
-    expect(Mock).toHaveBeenCalledWith(expect.objectContaining({ env: expect.any(Object) }), expect.anything())
+    expect(renderChild).toHaveBeenCalledWith(expect.objectContaining({ name: 'react' }))
   })
 
   it('keeps the original props of the element', () => {
     const Echo = ({ message }: { message: string }) => <span>{message}</span>
 
-    const { container } = render(
-      <WithEnvironment>
-        <Echo message='hello' />
-      </WithEnvironment>
-    )
+    const { container } = render(<WithEnvironment>{() => <Echo message='hello' />}</WithEnvironment>)
 
     expect(container.innerHTML).toContain('hello')
   })
 
   it('should not break navigation', async () => {
+    const user = userEvent.setup()
     const Home = () => (
       <Link to='/test' id='test'>
         Go to test
@@ -49,19 +40,10 @@ describe('WithEnvironment', () => {
       )
     }
 
-    const { container } = render(
-      <WithEnvironment>
-        <App />
-      </WithEnvironment>
-    )
+    render(<WithEnvironment>{() => <App />}</WithEnvironment>)
 
-    act(() => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      void userEvent.click(container.querySelector('#test')!)
-    })
+    await user.click(screen.getByRole('link', { name: 'Go to test' }))
 
-    await actWait(250)
-
-    expect(container.innerHTML).toContain('Test page')
+    expect(screen.getByText('Test page')).toBeDefined()
   })
 })
