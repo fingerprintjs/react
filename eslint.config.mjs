@@ -46,6 +46,12 @@ const config = [
   {
     files: NEXT_EXAMPLE_FILES,
     ...nextPlugin.configs['core-web-vitals'],
+    settings: {
+      // Without this, rules like no-html-link-for-pages default to looking for
+      // pages/app at the repo root and silently no-op, since both examples live
+      // under examples/.
+      next: { rootDir: ['examples/next', 'examples/next-appDir'] },
+    },
   },
   {
     // peerDependencies declare react >=18 <20, so React 19-only idioms (the `use` hook,
