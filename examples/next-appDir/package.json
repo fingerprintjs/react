@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@fingerprint/react": "workspace:*",
-    "next": "14.2.35"
+    "next": "16.2.10"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -39,7 +39,7 @@ Fingerprint is a device intelligence platform offering industry-leading accuracy
 
 ## Requirements
 
-- React 18 or higher
+- React 18 or 19
 - For Preact users: Preact 10.3 or higher
 - For Next.js users: Next.js 13.1 or higher
 - For TypeScript users: TypeScript 4.8 or higher
