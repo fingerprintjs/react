@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -104,15 +104,7 @@
 <a name='L39'></a><a href='#L39'>39</a>
 <a name='L40'></a><a href='#L40'>40</a>
 <a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a>
-<a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a>
-<a name='L46'></a><a href='#L46'>46</a>
-<a name='L47'></a><a href='#L47'>47</a>
-<a name='L48'></a><a href='#L48'>48</a>
-<a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L42'></a><a href='#L42'>42</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -137,62 +129,47 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { cloneElement, Component } from 'react'
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, type JSX } from 'react'
 &nbsp;
 import { getEnvironment } from '../get-env'
 import { type DetectEnvParams } from '../detect-env'
 import { type EnvDetails } from '../env.types'
 &nbsp;
 export interface WithEnvironmentProps {
-  // exactly one element must be provided
-  children: JSX.Element
+  children: (env: EnvDetails) =&gt; JSX.Element
 }
 &nbsp;
 /**
  * Utility component that synchronously detects the current environment (React/Preact etc.) and
- * provides it as a prop to the child element.
+ * passes it to the child render function.
  *
  * @example
  * ```jsx
- * const App = ({ env }: { env: EnvDetails }) =&gt; `I'm running in ${env.name}!`
- *
  * &lt;WithEnvironment&gt;
- *  &lt;App /&gt;
+ *   {(env) =&gt; &lt;App env={env} /&gt;}
  * &lt;/WithEnvironment&gt;
  * ```
  */
 class WithEnvironment extends Component&lt;WithEnvironmentProps&gt; {
-  constructor(props: WithEnvironmentProps) {
-    super(props)
-  }
-&nbsp;
   detectedEnv: EnvDetails | undefined
 &nbsp;
-  render(...args: any[]) {
+  render(...args: unknown[]) {
     if (!this.detectedEnv) {
       // unlike React, class components in Preact always receive `props` and `state` in render()
       // this is true for both Preact 8.x and 10.x
@@ -204,8 +181,7 @@ class WithEnvironment extends Component&lt;WithEnvironmentProps&gt; {
       this.detectedEnv = getEnvironment(detectParams)
     }
 &nbsp;
-    // passes the `env` down as a prop
-    return cloneElement(this.props.children, { env: this.detectedEnv })
+    return this.props.children(this.detectedEnv)
   }
 }
 &nbsp;
@@ -217,7 +193,7 @@ export { WithEnvironment }
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-15T09:48:31.372Z
+                at 2026-07-17T12:23:43.419Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
