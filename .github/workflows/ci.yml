@@ -4,11 +4,11 @@ on:
     branches-ignore:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 jobs:
   build-and-check:
-    name: Build project and run CI checks
+    name: Build project and run CI checks (React 18)
     uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@v1
 
   build-and-check-react-19:
