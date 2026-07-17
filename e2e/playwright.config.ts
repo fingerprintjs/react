@@ -1,0 +1,39 @@
+import { defineConfig, devices } from '@playwright/test'
+import path from 'path'
+import { resolveExample } from './examples'
+
+// Playwright compiles this config as CommonJS, so `__dirname` (the e2e/ dir) is
+// available; its parent is the repo root, from where the dev servers are run.
+const repoRoot = path.resolve(__dirname, '..')
+
+// A CI job runs one example at a time. `EXAMPLE` selects which one; the matching
+// dev server is booted by Playwright and torn down when the run finishes.
+const { name, config } = resolveExample(process.env.EXAMPLE)
+const baseURL = `http://localhost:${String(config.port)}`
+const isCI = Boolean(process.env.CI)
+
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  forbidOnly: isCI,
+  // The JS agent talks to a remote service, so the first load can be flaky.
+  retries: isCI ? 2 : 0,
+  reporter: isCI ? [['github'], ['list'], ['html', { open: 'never' }]] : 'list',
+  use: {
+    baseURL,
+    trace: 'on-first-retry',
+  },
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  webServer: {
+    command: config.command,
+    cwd: repoRoot,
+    url: baseURL,
+    reuseExistingServer: !isCI,
+    // Dev servers (Next/CRA) compile on boot, so allow a generous window.
+    timeout: 180_000,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    env: config.env,
+  },
+  metadata: { example: name },
+})

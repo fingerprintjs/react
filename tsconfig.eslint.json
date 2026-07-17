@@ -9,6 +9,7 @@
 		"__tests__",
 		"vite.config.ts",
 		"vitest.config.ts",
+		"e2e/**/*.ts",
 		"examples/**/*.ts",
 		"examples/**/*.tsx",
 		"examples/vite/src/vite-env.d.ts"

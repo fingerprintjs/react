@@ -27,6 +27,10 @@ module.exports = {
   plugins: [
     new Dotenv({
       path: './.env.local',
+      // Fall back to process.env (e.g. CI-provided vars) and stay quiet when
+      // the local file is absent, so the example builds without a .env.local.
+      systemvars: true,
+      silent: true,
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html', // base html

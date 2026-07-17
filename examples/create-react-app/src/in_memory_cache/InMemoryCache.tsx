@@ -1,11 +1,15 @@
 import { FingerprintProvider } from '@fingerprint/react'
 import { Outlet } from 'react-router-dom'
-import { FPJS_API_KEY } from '../shared/utils/env'
+import { FPJS_API_KEY, FPJS_REGION } from '../shared/utils/env'
 import { Nav } from '../shared/components/Nav'
 
 function InMemoryCache() {
   return (
-    <FingerprintProvider apiKey={FPJS_API_KEY} cache={{ storage: 'agent', duration: 'optimize-cost' }}>
+    <FingerprintProvider
+      apiKey={FPJS_API_KEY}
+      region={FPJS_REGION}
+      cache={{ storage: 'agent', duration: 'optimize-cost' }}
+    >
       <div className='App'>
         <header className='header'>
           <h2>Solution with an in-memory cache</h2>

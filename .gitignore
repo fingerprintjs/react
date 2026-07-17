@@ -5,6 +5,11 @@
 # Coverage
 /coverage/
 
+# Playwright
+/playwright-report/
+/test-results/
+/e2e/.cache/
+
 # misc
 .DS_Store
 .env.local

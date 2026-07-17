@@ -15,7 +15,6 @@
     "preact-render-to-string": "^6.7.0"
   },
   "devDependencies": {
-    "dotenv": "^17.4.2",
     "preact-cli": "^3.5.1",
     "sirv-cli": "^3.0.1",
     "typescript": "catalog:"

@@ -1,0 +1,103 @@
+name: e2e
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: ${{ matrix.example }} (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every example is tested against each React version it supports. The
+        # preact example uses Preact (via preact/compat) rather than React, so
+        # it runs once outside the React matrix.
+        include:
+          - { example: create-react-app, react: "18" }
+          - { example: create-react-app, react: "19" }
+          - { example: vite, react: "18" }
+          - { example: vite, react: "19" }
+          - { example: webpack-based, react: "18" }
+          - { example: webpack-based, react: "19" }
+          - { example: next, react: "18" }
+          - { example: next, react: "19" }
+          - { example: next-appDir, react: "18" }
+          - { example: next-appDir, react: "19" }
+          - { example: preact, react: "preact" }
+    env:
+      # A single repo secret feeds every framework's public-key variable; each
+      # example reads whichever one its bundler exposes.
+      VITE_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
+      REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
+      NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
+      PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
+      # The key used by CI lives in the EU region.
+      VITE_FPJS_REGION: eu
+      REACT_APP_FPJS_REGION: eu
+      NEXT_PUBLIC_FPJS_REGION: eu
+      PREACT_APP_FPJS_REGION: eu
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure the public API key secret is set
+        run: |
+          if [ -z "${{ secrets.FPJS_PUBLIC_API_KEY }}" ]; then
+            echo "::error::FPJS_PUBLIC_API_KEY secret is not set. Add a public API key (EU region) to the repo secrets."
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Switch the workspace to React 19
+        if: matrix.react == '19'
+        # The catalog in pnpm-workspace.yaml is the single source of the React
+        # version for the SDK and every example, so flipping it moves the whole
+        # workspace to React 19 in lockstep (avoiding duplicate @types/react,
+        # which otherwise breaks the Next App Router type-check).
+        run: |
+          sed -i -E \
+            -e 's/^(  react: ).*/\1^19.0.0/' \
+            -e 's/^(  react-dom: ).*/\1^19.0.0/' \
+            -e 's#^(  "@types/react": ).*#\1^19.0.0#' \
+            -e 's#^(  "@types/react-dom": ).*#\1^19.0.0#' \
+            pnpm-workspace.yaml
+          echo "Catalog after switch:"
+          grep -E '^  (react|react-dom|"@types/react"|"@types/react-dom"):' pnpm-workspace.yaml
+
+      - name: Install dependencies
+        run: pnpm install ${{ matrix.react == '19' && '--no-frozen-lockfile' || '--frozen-lockfile' }}
+
+      - name: Build the SDK
+        run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: pnpm test:e2e
+        env:
+          EXAMPLE: ${{ matrix.example }}
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.example }}-react-${{ matrix.react }}
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
