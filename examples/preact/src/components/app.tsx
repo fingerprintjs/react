@@ -25,7 +25,10 @@ const App: FunctionalComponent = () => {
           </button>
         </div>
         <h4>
-          VisitorId: <span className='visitorId'>{isLoading ? 'Loading...' : data?.visitor_id}</span>
+          Visitor ID:{' '}
+          <span data-testid='visitor-id' className='visitorId'>
+            {isLoading ? 'Loading...' : data?.visitor_id}
+          </span>
         </h4>
         <h4>Full visitor data:</h4>
         <pre className='data'>{error ? error.message : JSON.stringify(data, null, 2)}</pre>

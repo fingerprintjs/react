@@ -77,22 +77,37 @@ jobs:
 
       - name: Switch the workspace to React 19
         if: matrix.react == '19'
-        # The catalog in pnpm-workspace.yaml is the single source of the React
-        # version for the SDK and every example, so flipping it moves the whole
-        # workspace to React 19 in lockstep (avoiding duplicate @types/react,
-        # which otherwise breaks the Next App Router type-check).
+        # Force React 19 for the SDK and every example via pnpm overrides (pnpm 11
+        # stores these in pnpm-workspace.yaml). Overrides beat the React 18 catalog
+        # so every `catalog:` consumer moves in lockstep — needed to avoid
+        # duplicate @types/react, which breaks the Next App Router type-check.
         run: |
-          sed -i -E \
-            -e 's/^(  react: ).*/\1^19.0.0/' \
-            -e 's/^(  react-dom: ).*/\1^19.0.0/' \
-            -e 's#^(  "@types/react": ).*#\1^19.0.0#' \
-            -e 's#^(  "@types/react-dom": ).*#\1^19.0.0#' \
-            pnpm-workspace.yaml
-          echo "Catalog after switch:"
-          grep -E '^  (react|react-dom|"@types/react"|"@types/react-dom"):' pnpm-workspace.yaml
+          pnpm config set overrides --json '{
+            "react": "^19.0.0",
+            "react-dom": "^19.0.0",
+            "@types/react": "^19.0.0",
+            "@types/react-dom": "^19.0.0"
+          }' --location project
+          echo "Overrides after switch:"
+          pnpm config get overrides --location project
 
       - name: Install dependencies
         run: pnpm install ${{ matrix.react == '19' && '--no-frozen-lockfile' || '--frozen-lockfile' }}
+
+      - name: Verify React major version
+        if: matrix.react == '18' || matrix.react == '19'
+        run: |
+          node -e '
+            const major = require("react/package.json").version.split(".")[0]
+            const expected = process.env.EXPECTED_REACT_MAJOR
+            if (major !== expected) {
+              console.error(`Expected React ${expected}, got ${require("react/package.json").version}`)
+              process.exit(1)
+            }
+            console.log(`React ${require("react/package.json").version}`)
+          '
+        env:
+          EXPECTED_REACT_MAJOR: ${{ matrix.react }}
 
       - name: Build the SDK
         run: pnpm build

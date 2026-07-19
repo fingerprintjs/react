@@ -17,9 +17,11 @@ function VisitorDataPresenter({
     <div className='visitor-data'>
       <p>
         <b>Visitor ID:</b>{' '}
-        {isLoading === true ? 'Loading...' : data !== undefined ? data.visitor_id : 'not established yet'}
+        <span data-testid='visitor-id'>
+          {isLoading === true ? 'Loading...' : (data?.visitor_id ?? 'not established yet')}
+        </span>
       </p>
-      {data && (
+      {data !== undefined && (
         <>
           <p>
             <b>Full visitor data:</b>

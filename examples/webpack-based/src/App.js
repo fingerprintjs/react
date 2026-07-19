@@ -9,11 +9,15 @@ function App() {
   if (error) {
     return <div>An error occurred: {error.message}</div>
   }
-
-  if (data) {
-    return <div>Welcome {data.visitor_id}!</div>
+  if (data?.visitor_id === undefined || data.visitor_id === '') {
+    return null
   }
-  return null
+
+  return (
+    <div>
+      Visitor ID: <span data-testid='visitor-id'>{data.visitor_id}</span>
+    </div>
+  )
 }
 
 export default App

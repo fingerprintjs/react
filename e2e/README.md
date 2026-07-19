@@ -12,7 +12,7 @@ rendered on the page).
 - [`playwright.config.ts`](./playwright.config.ts) reads the `EXAMPLE`
   environment variable, boots that one example, and points the tests at it.
 - [`tests/example.spec.ts`](./tests/example.spec.ts) is framework-agnostic: it
-  loads the app and waits for a Fingerprint visitor ID to appear.
+  loads the app and waits for `[data-testid="visitor-id"]` to show a visitor ID.
 
 CI runs one example per job across a matrix of React versions
 (see [`.github/workflows/e2e.yml`](../.github/workflows/e2e.yml)).
