@@ -41,19 +41,22 @@ jobs:
       REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
       NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
       PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
-      # Region of the CI key, from the FPJS_REGION repo variable (one of us/eu/
-      # ap). Defaults to eu, the region of the key this matrix was set up with.
-      VITE_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
-      REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
-      NEXT_PUBLIC_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
-      PREACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
+      # Region of the CI key, from the FPJS_REGION repo variable (one of us/eu/ap).
+      VITE_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      NEXT_PUBLIC_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      PREACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure the public API key secret is set
+      - name: Ensure the API key and region are configured
         run: |
           if [ -z "${{ secrets.FPJS_PUBLIC_API_KEY }}" ]; then
-            echo "::error::FPJS_PUBLIC_API_KEY secret is not set. Add a public API key (EU region) to the repo secrets."
+            echo "::error::FPJS_PUBLIC_API_KEY secret is not set. Add a public API key to the repo secrets."
+            exit 1
+          fi
+          if [ -z "${{ vars.FPJS_REGION }}" ]; then
+            echo "::error::FPJS_REGION variable is not set. Set it (us, eu, or ap) to match the key's region."
             exit 1
           fi
 
