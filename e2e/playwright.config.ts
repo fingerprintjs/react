@@ -14,6 +14,8 @@ const isCI = Boolean(process.env.CI)
 
 export default defineConfig({
   testDir: './tests',
+  // Leave enough headroom for the test's 60-second remote-service assertion.
+  timeout: 90_000,
   fullyParallel: true,
   forbidOnly: isCI,
   // The JS agent talks to a remote service, so the first load can be flaky.

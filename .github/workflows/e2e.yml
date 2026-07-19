@@ -8,6 +8,9 @@ on:
       - "**.md"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
@@ -53,14 +56,17 @@ jobs:
 
       - name: Ensure the API key and region are configured
         run: |
-          if [ -z "${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}" ]; then
+          if [ -z "$VITE_FPJS_PUBLIC_API_KEY" ]; then
             echo "::error::FPJS_PUBLIC_API_KEY is not set. Add a public API key as a repo secret or variable."
             exit 1
           fi
-          if [ -z "${{ vars.FPJS_REGION }}" ]; then
-            echo "::error::FPJS_REGION variable is not set. Set it (us, eu, or ap) to match the key's region."
-            exit 1
-          fi
+          case "$VITE_FPJS_REGION" in
+            us|eu|ap) ;;
+            *)
+              echo "::error::FPJS_REGION must be set to us, eu, or ap to match the key's region."
+              exit 1
+              ;;
+          esac
 
       - uses: pnpm/action-setup@v4
 
