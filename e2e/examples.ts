@@ -36,8 +36,11 @@ export const EXAMPLES: Record<string, ExampleConfig> = {
     command: 'pnpm --filter ./examples/next-appDir dev',
   },
   preact: {
+    // preact-cli's dev server (`watch`) fails to resolve its entrypoint on the
+    // CI Node version, so build once and serve the static output with sirv
+    // (its `serve` script listens on 8080).
     port: 8080,
-    command: 'pnpm --filter ./examples/preact dev -- -p 8080',
+    command: 'pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
   },
   vite: {
     port: 5173,
