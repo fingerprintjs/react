@@ -35,12 +35,14 @@ jobs:
           - { example: next-appDir, react: "19" }
           - { example: preact, react: "preact" }
     env:
-      # A single repo secret feeds every framework's public-key variable; each
-      # example reads whichever one its bundler exposes.
-      VITE_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
-      REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
-      NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
-      PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
+      # A single FPJS_PUBLIC_API_KEY feeds every framework's public-key variable
+      # (each example reads whichever one its bundler exposes). The key is a
+      # Fingerprint *public* key, so it works as either a repo secret or a repo
+      # variable.
+      VITE_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
       # Region of the CI key, from the FPJS_REGION repo variable (one of us/eu/ap).
       VITE_FPJS_REGION: ${{ vars.FPJS_REGION }}
       REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
@@ -51,8 +53,8 @@ jobs:
 
       - name: Ensure the API key and region are configured
         run: |
-          if [ -z "${{ secrets.FPJS_PUBLIC_API_KEY }}" ]; then
-            echo "::error::FPJS_PUBLIC_API_KEY secret is not set. Add a public API key to the repo secrets."
+          if [ -z "${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}" ]; then
+            echo "::error::FPJS_PUBLIC_API_KEY is not set. Add a public API key as a repo secret or variable."
             exit 1
           fi
           if [ -z "${{ vars.FPJS_REGION }}" ]; then
