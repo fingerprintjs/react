@@ -41,11 +41,12 @@ jobs:
       REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
       NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
       PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY }}
-      # The key used by CI lives in the EU region.
-      VITE_FPJS_REGION: eu
-      REACT_APP_FPJS_REGION: eu
-      NEXT_PUBLIC_FPJS_REGION: eu
-      PREACT_APP_FPJS_REGION: eu
+      # Region of the CI key, from the FPJS_REGION repo variable (one of us/eu/
+      # ap). Defaults to eu, the region of the key this matrix was set up with.
+      VITE_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
+      REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
+      NEXT_PUBLIC_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
+      PREACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION || 'eu' }}
     steps:
       - uses: actions/checkout@v4
 
