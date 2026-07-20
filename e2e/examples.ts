@@ -10,9 +10,9 @@
  * name is the only identifier needed here, in CI, and in the React-version
  * override step.
  *
- * Servers are production builds (`build` then `start`/`preview`/`serve`), not
- * `dev`, so bundling failures surface before Playwright. Typechecking coverage
- * varies by example — see comments on each entry.
+ * Each command is a production `build` followed by that example's serve path
+ * (`start` / `preview` / `serve`), not `dev`. Typechecking, if any, lives in
+ * the example's own `build` script.
  */
 export interface ExampleConfig {
   /** Port the example server listens on. */
@@ -23,7 +23,6 @@ export interface ExampleConfig {
 
 export const EXAMPLES = {
   'create-react-app': {
-    // react-scripts build typechecks by default (fails the build on TS errors).
     port: 3001,
     command: 'pnpm --filter ./examples/create-react-app build && pnpm --filter ./examples/create-react-app serve',
   },
@@ -36,18 +35,15 @@ export const EXAMPLES = {
     command: 'pnpm --filter ./examples/next-appDir build && pnpm --filter ./examples/next-appDir start',
   },
   preact: {
-    // preact-cli builds with Babel and does not typecheck, so run tsc first.
     port: 8080,
-    command:
-      'pnpm --filter ./examples/preact typecheck && pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
+    command: 'pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
   },
   vite: {
-    // `build` is already `tsc -b && vite build`.
     port: 5173,
     command: 'pnpm --filter ./examples/vite build && pnpm --filter ./examples/vite preview',
   },
   'webpack-based': {
-    // Plain JS via Babel — nothing to typecheck.
+    // JS-only example — its `build` does not typecheck.
     port: 8081,
     command: 'pnpm --filter ./examples/webpack-based build && pnpm --filter ./examples/webpack-based serve',
   },

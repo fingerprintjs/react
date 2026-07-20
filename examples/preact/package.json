@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "preact build --no-sw",
+    "build": "pnpm typecheck && preact build --no-sw",
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch --no-sw",
     "typecheck": "tsc --noEmit --ignoreDeprecations 6.0",
