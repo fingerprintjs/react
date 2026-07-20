@@ -191,6 +191,59 @@ describe('useVisitorData', () => {
     expect(mockGet).toHaveBeenNthCalledWith(2, { tag: 2 })
   })
 
+  it('should set error state when immediate mount fetch fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockGet.mockRejectedValue(new Error('mount failed'))
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: true }), { wrapper })
+
+    await actWait(500)
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: false,
+      data: undefined,
+      error: expect.objectContaining({ message: 'mount failed' }),
+    })
+    expect(consoleError).toHaveBeenCalledWith('Failed to fetch visitor data on mount: Error: mount failed')
+
+    consoleError.mockRestore()
+  })
+
+  it('should ignore stale immediate responses when options change mid-flight', async () => {
+    let resolveFirst!: (value: GetResult) => void
+    const firstRequest = new Promise<GetResult>((resolve) => {
+      resolveFirst = resolve
+    })
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+
+    mockGet.mockImplementationOnce(() => firstRequest).mockResolvedValueOnce(secondResult)
+
+    const wrapper = createWrapper()
+    const { result, rerender } = renderHook(({ tag }: { tag: number }) => useVisitorData({ immediate: true, tag }), {
+      wrapper,
+      initialProps: { tag: 1 },
+    })
+
+    await actWait(50)
+    expect(mockGet).toHaveBeenCalledTimes(1)
+    expect(result.current.isLoading).toBe(true)
+
+    rerender({ tag: 2 })
+    expect(result.current.isLoading).toBe(true)
+
+    await actWait(50)
+    expect(mockGet).toHaveBeenCalledTimes(2)
+
+    act(() => {
+      resolveFirst(mockGetResult)
+    })
+    await actWait(50)
+
+    expect(result.current.data).toEqual(secondResult)
+  })
+
   it('should correctly pass errors from agent', async () => {
     const ERROR_CLIENT_TIMEOUT = 'timeout'
     mockGet.mockRejectedValue(new Error(ERROR_CLIENT_TIMEOUT))

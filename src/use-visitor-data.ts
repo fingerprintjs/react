@@ -94,18 +94,65 @@ export function useVisitorData(
     [currentGetOptions, getVisitorData]
   )
 
+  /**
+   * When `immediate` is enabled, fetches visitor data on mount and whenever `getOptions` change.
+   * We don't reuse `getData` here because it sets loading state synchronously, which is not allowed
+   * inside an effect — `isLoading: true` is covered by the initial state and the render-phase reset below.
+   * The `ignore` flag prevents an outdated in-flight response from overwriting a newer request's state:
+   * https://react.dev/reference/react/useEffect#fetching-data-with-effects
+   */
   useEffect(() => {
-    if (immediate) {
-      // TODO: refactor mount fetch to avoid synchronous setState inside the effect
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- preserve existing getData() mount behavior
-      getData().catch((unknownError: unknown) => {
+    if (!immediate) {
+      return
+    }
+
+    let ignore = false
+
+    getVisitorData(currentGetOptions)
+      .then((result) => {
+        if (ignore) {
+          return
+        }
+
+        setQueryState({
+          isLoading: false,
+          isFetched: true,
+          data: result,
+          error: undefined,
+        })
+      })
+      .catch((unknownError: unknown) => {
+        if (ignore) {
+          return
+        }
+
+        setQueryState({
+          isLoading: false,
+          isFetched: false,
+          data: undefined,
+          error: toError(unknownError),
+        })
         console.error(`Failed to fetch visitor data on mount: ${String(unknownError)}`)
       })
-    }
-  }, [immediate, getData])
 
+    return () => {
+      ignore = true
+    }
+  }, [immediate, getVisitorData, currentGetOptions])
+
+  // When `getOptions` change, store them (triggering a refetch via the effect above) and reset to loading
+  // state right away: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
   if (!Object.is(currentGetOptions, getOptions) && !deepEquals(currentGetOptions, getOptions)) {
     setCurrentGetOptions(getOptions)
+
+    if (immediate) {
+      setQueryState({
+        isLoading: true,
+        isFetched: false,
+        data: undefined,
+        error: undefined,
+      })
+    }
   }
 
   return useMemo(
