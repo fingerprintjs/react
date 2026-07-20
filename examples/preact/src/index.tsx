@@ -10,7 +10,7 @@ const WrappedApp: FunctionalComponent = () => {
   }
 
   // Optional. Defaults to the SDK's default region (us) when unset or invalid.
-  const rawRegion = typeof process === 'undefined' ? undefined : process.env.PREACT_APP_FPJS_REGION
+  const rawRegion = process.env.PREACT_APP_FPJS_REGION
   const region = rawRegion === 'us' || rawRegion === 'eu' || rawRegion === 'ap' ? rawRegion : undefined
 
   return (

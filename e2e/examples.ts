@@ -52,7 +52,7 @@ export const EXAMPLES = {
 export type ExampleName = keyof typeof EXAMPLES
 
 function isExampleName(name: string): name is ExampleName {
-  return name in EXAMPLES
+  return Object.hasOwn(EXAMPLES, name)
 }
 
 export function resolveExample(name: string | undefined): { name: ExampleName; config: ExampleConfig } {
