@@ -3,11 +3,11 @@ import path from 'path'
 import { resolveExample } from './examples'
 
 // Playwright compiles this config as CommonJS, so `__dirname` (the e2e/ dir) is
-// available; its parent is the repo root, from where the dev servers are run.
+// available; its parent is the repo root, from where example servers are run.
 const repoRoot = path.resolve(__dirname, '..')
 
-// A CI job runs one example at a time. `EXAMPLE` selects which one; the matching
-// dev server is booted by Playwright and torn down when the run finishes.
+// A CI job runs one example at a time. `EXAMPLE` selects which one; Playwright
+// builds and serves it, then tears the server down when the run finishes.
 const { name, config } = resolveExample(process.env.EXAMPLE)
 const baseURL = `http://localhost:${String(config.port)}`
 const isCI = Boolean(process.env.CI)
@@ -31,7 +31,7 @@ export default defineConfig({
     cwd: repoRoot,
     url: baseURL,
     reuseExistingServer: !isCI,
-    // Dev servers (Next/CRA) compile on boot, so allow a generous window.
+    // Production builds (esp. Next) can take a while on cold CI runners.
     timeout: 180_000,
     stdout: 'pipe',
     stderr: 'pipe',

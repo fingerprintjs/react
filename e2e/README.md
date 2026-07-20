@@ -7,10 +7,10 @@ rendered on the page).
 ## How it works
 
 - [`examples.ts`](./examples.ts) is the single source of truth: it maps each
-  example directory to the command that starts its dev server and the port it
-  listens on.
+  example directory to the build+serve command and the port it listens on.
 - [`playwright.config.ts`](./playwright.config.ts) reads the `EXAMPLE`
-  environment variable, boots that one example, and points the tests at it.
+  environment variable, builds and serves that one example, and points the
+  tests at it.
 - [`tests/example.spec.ts`](./tests/example.spec.ts) is framework-agnostic: it
   loads the app and waits for `[data-testid="visitor-id"]` to show a visitor ID.
 

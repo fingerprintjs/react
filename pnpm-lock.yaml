@@ -166,6 +166,9 @@ importers:
         specifier: 5.0.1
         version: 5.0.1(@babel/plugin-syntax-flow@7.29.7(@babel/core@7.29.7))(@babel/plugin-transform-react-jsx@7.29.7(@babel/core@7.29.7))(@types/babel__core@7.20.5)(@types/webpack@4.41.40)(esbuild@0.28.1)(eslint@10.7.0(jiti@1.21.7))(react@18.3.1)(type-fest@0.21.3)(typescript@6.0.3)(yaml@2.9.0)
     devDependencies:
+      sirv-cli:
+        specifier: ^3.0.1
+        version: 3.0.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -309,6 +312,9 @@ importers:
       html-webpack-plugin:
         specifier: ^5.6.7
         version: 5.6.7(webpack@5.108.4)
+      sirv-cli:
+        specifier: ^3.0.1
+        version: 3.0.1
       webpack:
         specifier: ^5.108.4
         version: 5.108.4(esbuild@0.28.1)(webpack-cli@7.2.1)

@@ -9,46 +9,53 @@
  * Commands use pnpm path filters (`--filter ./examples/<dir>`) so the directory
  * name is the only identifier needed here, in CI, and in the React-version
  * override step.
+ *
+ * Servers are production builds (`build` then `start`/`preview`/`serve`), not
+ * `dev`, so bundling failures surface before Playwright. Typechecking coverage
+ * varies by example — see comments on each entry.
  */
 export interface ExampleConfig {
-  /** Port the dev server listens on. */
+  /** Port the example server listens on. */
   port: number
-  /** Command Playwright runs to boot the example (from the repo root). */
+  /** Command Playwright runs to build and serve the example (from the repo root). */
   command: string
-  /** Extra env for the dev server process. */
+  /** Extra env for the build/serve process. */
   env?: Record<string, string>
 }
 
 export const EXAMPLES = {
   'create-react-app': {
+    // react-scripts build typechecks by default (fails the build on TS errors).
     port: 3001,
-    command: 'pnpm --filter ./examples/create-react-app dev',
-    // react-scripts otherwise tries to open a browser and treats warnings as
-    // errors under CI.
-    env: { BROWSER: 'none', CI: 'false' },
+    command: 'pnpm --filter ./examples/create-react-app build && pnpm --filter ./examples/create-react-app serve',
   },
   next: {
     port: 3002,
-    command: 'pnpm --filter ./examples/next dev',
+    command: 'pnpm --filter ./examples/next build && pnpm --filter ./examples/next start',
   },
   'next-appDir': {
     port: 3003,
-    command: 'pnpm --filter ./examples/next-appDir dev',
+    command: 'pnpm --filter ./examples/next-appDir build && pnpm --filter ./examples/next-appDir start',
   },
   preact: {
-    // preact-cli's dev server (`watch`) fails to resolve its entrypoint on the
-    // CI Node version, so build once and serve the static output with sirv
-    // (its `serve` script listens on 8080).
+    // preact-cli builds with Babel and does not typecheck, so run tsc first.
     port: 8080,
-    command: 'pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
+    command:
+      'pnpm --filter ./examples/preact typecheck && pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
+    // preact-cli only replaces environment variables that exist. Keep the
+    // optional region reference from leaking into the browser as `process.env`.
+    env: { PREACT_APP_FPJS_REGION: process.env.PREACT_APP_FPJS_REGION ?? '' },
   },
   vite: {
+    // `build` is already `tsc -b && vite build`.
     port: 5173,
-    command: 'pnpm --filter ./examples/vite dev -- --port 5173 --strictPort',
+    command: 'pnpm --filter ./examples/vite build && pnpm --filter ./examples/vite preview',
   },
   'webpack-based': {
+    // Plain JS via Babel — nothing to typecheck.
     port: 8081,
-    command: 'pnpm --filter ./examples/webpack-based dev -- --port 8081',
+    command: 'pnpm --filter ./examples/webpack-based build && pnpm --filter ./examples/webpack-based serve',
+    env: { REACT_APP_FPJS_REGION: process.env.REACT_APP_FPJS_REGION ?? '' },
   },
 } as const satisfies Record<string, ExampleConfig>
 
