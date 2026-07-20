@@ -46,7 +46,7 @@ jobs:
       REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
       NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
       PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
-      # Region of the CI key, from the FPJS_REGION repo variable (one of us/eu/ap).
+      # Optional region of the CI key, from the FPJS_REGION repo variable (us/eu/ap).
       VITE_FPJS_REGION: ${{ vars.FPJS_REGION }}
       REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
       NEXT_PUBLIC_FPJS_REGION: ${{ vars.FPJS_REGION }}
@@ -61,9 +61,9 @@ jobs:
             exit 1
           fi
           case "$VITE_FPJS_REGION" in
-            us|eu|ap) ;;
+            ""|us|eu|ap) ;;
             *)
-              echo "::error::FPJS_REGION must be set to us, eu, or ap to match the key's region."
+              echo "::error::FPJS_REGION must be us, eu, or ap when set."
               exit 1
               ;;
           esac
