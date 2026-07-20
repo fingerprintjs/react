@@ -18,7 +18,7 @@
     "start": "pnpm dev",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "serve": "sirv build --port 3001 --cors --single",
-    "typecheck": "tsc --noEmit --ignoreDeprecations 6.0",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },
   "browserslist": {
