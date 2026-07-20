@@ -211,7 +211,8 @@ describe('useVisitorData', () => {
     consoleError.mockRestore()
   })
 
-  it('should ignore stale immediate responses when options change mid-flight', async () => {
+  it('should not apply an outdated immediate response after getOptions change mid-flight', async () => {
+    // First agent call stays pending until we resolve it later.
     let resolveFirst!: (value: GetResult) => void
     const firstRequest = new Promise<GetResult>((resolve) => {
       resolveFirst = resolve
@@ -226,16 +227,20 @@ describe('useVisitorData', () => {
       initialProps: { tag: 1 },
     })
 
+    // Mount started one in-flight request for tag: 1.
     await actWait(50)
     expect(mockGet).toHaveBeenCalledTimes(1)
     expect(result.current.isLoading).toBe(true)
 
+    // Changing options cancels the previous effect and starts a new immediate fetch.
     rerender({ tag: 2 })
     expect(result.current.isLoading).toBe(true)
 
     await actWait(50)
     expect(mockGet).toHaveBeenCalledTimes(2)
 
+    // The slow first response arrives after the second request has already settled.
+    // Without ignore/cleanup, this would overwrite data with the stale tag: 1 result.
     act(() => {
       resolveFirst(mockGetResult)
     })
