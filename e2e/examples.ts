@@ -19,7 +19,7 @@ export interface ExampleConfig {
   env?: Record<string, string>
 }
 
-export const EXAMPLES: Record<string, ExampleConfig> = {
+export const EXAMPLES = {
   'create-react-app': {
     port: 3001,
     command: 'pnpm --filter ./examples/create-react-app dev',
@@ -50,13 +50,19 @@ export const EXAMPLES: Record<string, ExampleConfig> = {
     port: 8081,
     command: 'pnpm --filter ./examples/webpack-based dev -- --port 8081',
   },
+} as const satisfies Record<string, ExampleConfig>
+
+export type ExampleName = keyof typeof EXAMPLES
+
+function isExampleName(name: string): name is ExampleName {
+  return name in EXAMPLES
 }
 
-export function resolveExample(name: string | undefined): { name: string; config: ExampleConfig } {
+export function resolveExample(name: string | undefined): { name: ExampleName; config: ExampleConfig } {
   if (name === undefined || name === '') {
     throw new Error(`EXAMPLE env var is required. One of: ${Object.keys(EXAMPLES).join(', ')}`)
   }
-  if (!(name in EXAMPLES)) {
+  if (!isExampleName(name)) {
     throw new Error(`Unknown example "${name}". One of: ${Object.keys(EXAMPLES).join(', ')}`)
   }
   return { name, config: EXAMPLES[name] }
