@@ -19,8 +19,6 @@ export interface ExampleConfig {
   port: number
   /** Command Playwright runs to build and serve the example (from the repo root). */
   command: string
-  /** Extra env for the build/serve process. */
-  env?: Record<string, string>
 }
 
 export const EXAMPLES = {
@@ -42,9 +40,6 @@ export const EXAMPLES = {
     port: 8080,
     command:
       'pnpm --filter ./examples/preact typecheck && pnpm --filter ./examples/preact build && pnpm --filter ./examples/preact serve',
-    // preact-cli only replaces environment variables that exist. Keep the
-    // optional region reference from leaking into the browser as `process.env`.
-    env: { PREACT_APP_FPJS_REGION: process.env.PREACT_APP_FPJS_REGION ?? '' },
   },
   vite: {
     // `build` is already `tsc -b && vite build`.
@@ -55,7 +50,6 @@ export const EXAMPLES = {
     // Plain JS via Babel — nothing to typecheck.
     port: 8081,
     command: 'pnpm --filter ./examples/webpack-based build && pnpm --filter ./examples/webpack-based serve',
-    env: { REACT_APP_FPJS_REGION: process.env.REACT_APP_FPJS_REGION ?? '' },
   },
 } as const satisfies Record<string, ExampleConfig>
 
