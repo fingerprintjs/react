@@ -52,17 +52,41 @@ export function useVisitorData(
     error: undefined,
   })
 
+  const setLoading = () => {
+    setQueryState({
+      isLoading: true,
+      isFetched: false,
+      data: undefined,
+      error: undefined,
+    })
+  }
+
+  const setSuccess = (data: GetResult) => {
+    setQueryState({
+      isLoading: false,
+      isFetched: true,
+      data,
+      error: undefined,
+    })
+  }
+
+  const setFailure = (unknownError: unknown) => {
+    const error = toError(unknownError)
+    setQueryState({
+      isLoading: false,
+      isFetched: false,
+      data: undefined,
+      error,
+    })
+    return error
+  }
+
   const getData = useCallback<UseVisitorDataReturn['getData']>(
     async (params = {}) => {
       assertIsDefined(params, 'getDataParams')
 
       try {
-        setQueryState({
-          isLoading: true,
-          isFetched: false,
-          data: undefined,
-          error: undefined,
-        })
+        setLoading()
 
         const getDataOptions: GetOptions = {
           ...currentGetOptions,
@@ -70,25 +94,11 @@ export function useVisitorData(
         }
 
         const result = await getVisitorData(getDataOptions)
-        setQueryState({
-          isLoading: false,
-          isFetched: true,
-          data: result,
-          error: undefined,
-        })
+        setSuccess(result)
 
         return result
       } catch (unknownError) {
-        const error = toError(unknownError)
-
-        setQueryState({
-          isLoading: false,
-          isFetched: false,
-          data: undefined,
-          error,
-        })
-
-        throw error
+        throw setFailure(unknownError)
       }
     },
     [currentGetOptions, getVisitorData]
@@ -110,28 +120,16 @@ export function useVisitorData(
 
     getVisitorData(currentGetOptions)
       .then((result) => {
-        if (ignore) {
-          return
+        if (!ignore) {
+          setSuccess(result)
         }
-
-        setQueryState({
-          isLoading: false,
-          isFetched: true,
-          data: result,
-          error: undefined,
-        })
       })
       .catch((unknownError: unknown) => {
         if (ignore) {
           return
         }
 
-        setQueryState({
-          isLoading: false,
-          isFetched: false,
-          data: undefined,
-          error: toError(unknownError),
-        })
+        setFailure(unknownError)
         console.error(`Failed to fetch visitor data on mount: ${String(unknownError)}`)
       })
 
@@ -146,12 +144,7 @@ export function useVisitorData(
     setCurrentGetOptions(getOptions)
 
     if (immediate) {
-      setQueryState({
-        isLoading: true,
-        isFetched: false,
-        data: undefined,
-        error: undefined,
-      })
+      setLoading()
     }
   }
 
