@@ -27,7 +27,10 @@ const HomePage = () => {
           </button>
         </div>
         <h4>
-          VisitorId: <span className={styles.visitorId}>{isLoading ? 'Loading...' : data?.visitor_id}</span>
+          Visitor ID:{' '}
+          <span data-testid='visitor-id' className={styles.visitorId}>
+            {isLoading ? 'Loading...' : data?.visitor_id}
+          </span>
         </h4>
         <h4>Full visitor data:</h4>
         <pre className={styles.data}>{error ? error.message : JSON.stringify(data, null, 2)}</pre>

@@ -1,0 +1,130 @@
+name: e2e
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: ${{ matrix.example }} (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every example is tested against each React version it supports. The
+        # preact example uses Preact (via preact/compat) rather than React, so
+        # it runs once outside the React matrix.
+        include:
+          - { example: create-react-app, react: "18" }
+          - { example: create-react-app, react: "19" }
+          - { example: vite, react: "18" }
+          - { example: vite, react: "19" }
+          - { example: webpack-based, react: "18" }
+          - { example: webpack-based, react: "19" }
+          - { example: next, react: "18" }
+          - { example: next, react: "19" }
+          - { example: next-appDir, react: "18" }
+          - { example: next-appDir, react: "19" }
+          - { example: preact, react: "preact" }
+    env:
+      # A single FPJS_PUBLIC_API_KEY feeds every framework's public-key variable
+      # (each example reads whichever one its bundler exposes). The key is a
+      # Fingerprint *public* key, so it works as either a repo secret or a repo
+      # variable.
+      VITE_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      REACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      NEXT_PUBLIC_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      PREACT_APP_FPJS_PUBLIC_API_KEY: ${{ secrets.FPJS_PUBLIC_API_KEY || vars.FPJS_PUBLIC_API_KEY }}
+      # Optional region of the CI key, from the FPJS_REGION repo variable (us/eu/ap).
+      VITE_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      REACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      NEXT_PUBLIC_FPJS_REGION: ${{ vars.FPJS_REGION }}
+      PREACT_APP_FPJS_REGION: ${{ vars.FPJS_REGION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure the API key and region are configured
+        run: |
+          if [ -z "$VITE_FPJS_PUBLIC_API_KEY" ]; then
+            echo "::error::FPJS_PUBLIC_API_KEY is not set. Add a public API key as a repo secret or variable."
+            exit 1
+          fi
+          case "$VITE_FPJS_REGION" in
+            ""|us|eu|ap) ;;
+            *)
+              echo "::error::FPJS_REGION must be us, eu, or ap when set."
+              exit 1
+              ;;
+          esac
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Switch the workspace to React 19
+        if: matrix.react == '19'
+        # Force React 19 for the SDK and every example via pnpm overrides (pnpm 11
+        # stores these in pnpm-workspace.yaml). Overrides beat the React 18 catalog
+        # so every `catalog:` consumer moves in lockstep — needed to avoid
+        # duplicate @types/react, which breaks the Next App Router type-check.
+        run: |
+          pnpm config set overrides --json '{
+            "react": "^19.0.0",
+            "react-dom": "^19.0.0",
+            "@types/react": "^19.0.0",
+            "@types/react-dom": "^19.0.0"
+          }' --location project
+          echo "Overrides after switch:"
+          pnpm config get overrides --location project
+
+      - name: Install dependencies
+        run: pnpm install ${{ matrix.react == '19' && '--no-frozen-lockfile' || '--frozen-lockfile' }}
+
+      - name: Verify React major version
+        if: matrix.react == '18' || matrix.react == '19'
+        run: |
+          node -e '
+            const major = require("react/package.json").version.split(".")[0]
+            const expected = process.env.EXPECTED_REACT_MAJOR
+            if (major !== expected) {
+              console.error(`Expected React ${expected}, got ${require("react/package.json").version}`)
+              process.exit(1)
+            }
+            console.log(`React ${require("react/package.json").version}`)
+          '
+        env:
+          EXPECTED_REACT_MAJOR: ${{ matrix.react }}
+
+      - name: Build the SDK
+        run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: pnpm test:e2e
+        env:
+          EXAMPLE: ${{ matrix.example }}
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.example }}-react-${{ matrix.react }}
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

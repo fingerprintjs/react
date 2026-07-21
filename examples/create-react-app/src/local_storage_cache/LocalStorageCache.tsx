@@ -1,12 +1,13 @@
 import { Outlet } from 'react-router-dom'
 import { Nav } from '../shared/components/Nav'
-import { FPJS_API_KEY } from '../shared/utils/env'
+import { FPJS_API_KEY, FPJS_REGION } from '../shared/utils/env'
 import { FingerprintProvider } from '@fingerprint/react'
 
 function LocalStorageCache() {
   return (
     <FingerprintProvider
       apiKey={FPJS_API_KEY}
+      region={FPJS_REGION}
       cache={{
         storage: 'localStorage',
         duration: 60 * 10,

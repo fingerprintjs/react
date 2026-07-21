@@ -10,12 +10,15 @@
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
+    "sirv-cli": "^3.0.1",
     "typescript": "catalog:"
   },
   "scripts": {
     "dev": "PORT=3001 DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "start": "pnpm dev",
     "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
+    "serve": "sirv build --port 3001 --cors --single",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },
   "browserslist": {

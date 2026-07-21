@@ -13,11 +13,17 @@ function getPublicApiKey(): string {
 
 const fpjsPublicApiKey = getPublicApiKey()
 
+// Optional. Defaults to the SDK's default region (us) when unset or invalid.
+const rawRegion = process.env.NEXT_PUBLIC_FPJS_REGION
+const fpjsRegion = rawRegion === 'us' || rawRegion === 'eu' || rawRegion === 'ap' ? rawRegion : undefined
+
 function RootLayout({ children }: PropsWithChildren) {
   return (
     <html>
       <body>
-        <FingerprintProvider apiKey={fpjsPublicApiKey}>{children}</FingerprintProvider>
+        <FingerprintProvider apiKey={fpjsPublicApiKey} region={fpjsRegion}>
+          {children}
+        </FingerprintProvider>
       </body>
     </html>
   )

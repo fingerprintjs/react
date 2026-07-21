@@ -4,9 +4,18 @@ on:
     branches-ignore:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 jobs:
   build-and-check:
-    name: Build project and run CI checks
+    name: Build project and run CI checks (React 18)
     uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@v1
+
+  build-and-check-react-19:
+    name: Build project and run CI checks (React 19)
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@v1
+    with:
+      # Overrides the pnpm-workspace.yaml catalog (pinned to React 18) for this
+      # job only, so the SDK itself is additionally verified against React 19.
+      # Example apps are unaffected: `-w` only touches the root package.
+      runAfterInstall: pnpm add -w react@19 react-dom@19 @types/react@19 @types/react-dom@19

@@ -1,4 +1,4 @@
-This example demonstrates the usage of Fingerprint inside Next 14's `app` directory approach.\
+This example demonstrates the usage of Fingerprint inside Next.js's `app` directory approach.\
 Note how you can use Fingerprint inside a React Server Component without issues as it is correctly executed in the browser only.
 See [../next](../next/README.md) for an example using the classic `pages` approach.
 
