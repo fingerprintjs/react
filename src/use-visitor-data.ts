@@ -132,8 +132,8 @@ export function useVisitorData(
           return
         }
 
-        setFailure(unknownError)
-        console.error(`Failed to fetch visitor data on mount: ${String(unknownError)}`)
+        const error = setFailure(unknownError)
+        console.error(`Failed to fetch visitor data automatically: ${error}`)
       })
 
     return () => {

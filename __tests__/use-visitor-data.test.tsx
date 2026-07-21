@@ -272,7 +272,7 @@ describe('useVisitorData', () => {
 
   it('should set error state when immediate mount fetch fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mockGet.mockRejectedValue(new Error('mount failed'))
+    mockGet.mockRejectedValue('mount failed')
 
     const wrapper = createWrapper()
     const { result } = renderHook(() => useVisitorData({ immediate: true }), { wrapper })
@@ -285,7 +285,7 @@ describe('useVisitorData', () => {
       data: undefined,
       error: expect.objectContaining({ message: 'mount failed' }),
     })
-    expect(consoleError).toHaveBeenCalledWith('Failed to fetch visitor data on mount: Error: mount failed')
+    expect(consoleError).toHaveBeenCalledWith('Failed to fetch visitor data automatically: Error: mount failed')
 
     consoleError.mockRestore()
   })
@@ -304,7 +304,7 @@ describe('useVisitorData', () => {
       })
     })
     expect(consoleError).toHaveBeenCalledWith(
-      'Failed to fetch visitor data on mount: Error: You forgot to wrap your component in <FingerprintProvider>.'
+      'Failed to fetch visitor data automatically: Error: You forgot to wrap your component in <FingerprintProvider>.'
     )
 
     consoleError.mockRestore()

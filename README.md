@@ -184,7 +184,7 @@ export default App
 ```
 
 - You can pass `{ immediate: false }` to disable automatic identification and call `getData` manually instead.
-  - By default (`{ immediate: true }`), the hook automatically identifies the visitor after mounting and whenever its request options change. Changing `immediate` from `false` to `true` also starts an identification request with the latest options.
+- By default (`{ immediate: true }`), the hook automatically identifies the visitor after mounting and whenever its request options change. Changing `immediate` from `false` to `true` also starts an identification request with the latest options.
 - See the full code example in the [examples folder](./examples/).
 - See our [Use cases](https://demo.fingerprint.com) page for [open-source](https://github.com/fingerprintjs/fingerprintjs-pro-use-cases) real-world examples of using Fingerprint to detect fraud and streamline user experiences.
 
