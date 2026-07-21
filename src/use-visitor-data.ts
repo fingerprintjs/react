@@ -1,8 +1,8 @@
 import { FingerprintContext, FingerprintContextInterface, VisitorQueryResult } from './fingerprint-context'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import deepEquals from 'fast-deep-equal'
 import { toError } from './utils/to-error'
 import { assertIsDefined } from './utils/assert-is-defined'
+import { areGetOptionsEqual } from './utils/get-options-cache-key'
 import { GetOptions, GetResult } from '@fingerprint/agent'
 
 export interface UseVisitorDataConfig {
@@ -104,7 +104,7 @@ export function useVisitorData(
     }
   }, [immediate, getData])
 
-  if (!Object.is(currentGetOptions, getOptions) && !deepEquals(currentGetOptions, getOptions)) {
+  if (!Object.is(currentGetOptions, getOptions) && !areGetOptionsEqual(currentGetOptions, getOptions)) {
     setCurrentGetOptions(getOptions)
   }
 

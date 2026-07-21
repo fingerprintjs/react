@@ -1,37 +1,6 @@
 import { GetOptions, GetResult } from '@fingerprint/agent'
 import { useCallback, useState } from 'react'
-
-function serializeCacheValue(value: unknown): string {
-  if (value === undefined) {
-    return 'undefined:'
-  }
-
-  if (value === null) {
-    return 'null:'
-  }
-
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-    return `${typeof value}:${String(value)}`
-  }
-
-  try {
-    return `json:${JSON.stringify(value)}`
-  } catch {
-    return `unserializable:${typeof value}`
-  }
-}
-
-function getCacheKey(options?: GetOptions) {
-  if (!options) {
-    return ''
-  }
-
-  return JSON.stringify([
-    serializeCacheValue(options.tag),
-    serializeCacheValue(options.linkedId),
-    serializeCacheValue(options.timeout),
-  ])
-}
+import { getOptionsCacheKey } from './get-options-cache-key'
 
 export type UsePromiseStoreReturn = {
   /**
@@ -52,7 +21,7 @@ export function usePromiseStore(): UsePromiseStoreReturn {
 
   const doRequest = useCallback(
     (requestCallback: () => Promise<GetResult>, options?: GetOptions) => {
-      const cacheKey = getCacheKey(options)
+      const cacheKey = getOptionsCacheKey(options)
       let cachedPromise = store.get(cacheKey)
 
       if (!cachedPromise) {

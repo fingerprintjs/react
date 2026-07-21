@@ -339,4 +339,39 @@ describe('useVisitorData', () => {
     expect(getDataValues[2]).not.toBe(getDataValues[3])
     expect(effectCount).toEqual(3)
   })
+
+  it('should treat tags with differently ordered object keys as equal', async () => {
+    const getDataValues: UseVisitorDataReturn['getData'][] = []
+    const Component = () => {
+      const [reverseKeys, setReverseKeys] = useState(false)
+      const { getData } = useVisitorData({
+        immediate: false,
+        tag: reverseKeys ? { second: 2, first: 1 } : { first: 1, second: 2 },
+      })
+
+      getDataValues.push(getData)
+
+      return (
+        <button
+          onClick={() => {
+            setReverseKeys(true)
+          }}
+        >
+          Reverse keys
+        </button>
+      )
+    }
+    const Wrapper = createWrapper()
+    const user = userEvent.setup()
+
+    render(
+      <Wrapper>
+        <Component />
+      </Wrapper>
+    )
+    await user.click(screen.getByRole('button', { name: 'Reverse keys' }))
+
+    expect(getDataValues).toHaveLength(2)
+    expect(getDataValues[1]).toBe(getDataValues[0])
+  })
 })
