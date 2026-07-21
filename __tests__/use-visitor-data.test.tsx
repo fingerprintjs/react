@@ -1,5 +1,5 @@
 import { useVisitorData, UseVisitorDataReturn } from '../src'
-import { act, render, renderHook, screen } from '@testing-library/react'
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react'
 import { actWait, createWrapper, wait } from './helpers'
 import { useEffect, useState } from 'react'
 import userEvent from '@testing-library/user-event'
@@ -128,6 +128,85 @@ describe('useVisitorData', () => {
     expect(mockGet).not.toHaveBeenCalled()
   })
 
+  it('should fetch and enter loading when immediate changes from false to true', async () => {
+    let resolveRequest!: (value: GetResult) => void
+    mockGet.mockImplementationOnce(
+      () =>
+        new Promise<GetResult>((resolve) => {
+          resolveRequest = resolve
+        })
+    )
+
+    const wrapper = createWrapper()
+    const { result, rerender } = renderHook(
+      ({ immediate }: { immediate: boolean }) => useVisitorData({ immediate, tag: 1 }),
+      {
+        wrapper,
+        initialProps: { immediate: false },
+      }
+    )
+
+    // Automatic fetching stays idle while immediate is disabled.
+    expect(result.current.isLoading).toBe(false)
+    expect(mockGet).not.toHaveBeenCalled()
+
+    // Enabling immediate after mount starts a request and exposes loading right away.
+    rerender({ immediate: true })
+
+    expect(result.current.isLoading).toBe(true)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+      expect(mockGet).toHaveBeenCalledWith({ tag: 1 })
+    })
+
+    // The automatically started request updates the hook like an initial immediate fetch.
+    act(() => {
+      resolveRequest(mockGetResult)
+    })
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        isFetched: true,
+        data: mockGetResult,
+      })
+    })
+  })
+
+  it('should leave loading when immediate is disabled during an automatic request', async () => {
+    let resolveRequest!: (value: GetResult) => void
+    const request = new Promise<GetResult>((resolve) => {
+      resolveRequest = resolve
+    })
+    mockGet.mockReturnValueOnce(request)
+
+    const wrapper = createWrapper()
+    const { result, rerender } = renderHook(({ immediate }: { immediate: boolean }) => useVisitorData({ immediate }), {
+      wrapper,
+      initialProps: { immediate: true },
+    })
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+    expect(result.current.isLoading).toBe(true)
+
+    // Disabling automatic fetching makes the active response irrelevant.
+    rerender({ immediate: false })
+    expect(result.current.isLoading).toBe(false)
+
+    await act(async () => {
+      resolveRequest(mockGetResult)
+      await request
+    })
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: false,
+      data: undefined,
+    })
+  })
+
   it('should support immediate fetch with cache disabled', async () => {
     const wrapper = createWrapper()
     renderHook(() => useVisitorData({ immediate: true }), { wrapper })
@@ -211,6 +290,26 @@ describe('useVisitorData', () => {
     consoleError.mockRestore()
   })
 
+  it('should set error state when an immediate fetch throws synchronously', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    const { result } = renderHook(() => useVisitorData({ immediate: true }))
+
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        isFetched: false,
+        data: undefined,
+        error: expect.objectContaining({ message: 'You forgot to wrap your component in <FingerprintProvider>.' }),
+      })
+    })
+    expect(consoleError).toHaveBeenCalledWith(
+      'Failed to fetch visitor data on mount: Error: You forgot to wrap your component in <FingerprintProvider>.'
+    )
+
+    consoleError.mockRestore()
+  })
+
   it('should not apply an outdated immediate response after getOptions change mid-flight', async () => {
     // First agent call stays pending until we resolve it later.
     let resolveFirst!: (value: GetResult) => void
@@ -236,15 +335,17 @@ describe('useVisitorData', () => {
     rerender({ tag: 2 })
     expect(result.current.isLoading).toBe(true)
 
-    await actWait(50)
-    expect(mockGet).toHaveBeenCalledTimes(2)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+      expect(result.current.data).toEqual(secondResult)
+    })
 
     // The slow first response arrives after the second request has already settled.
     // Without ignore/cleanup, this would overwrite data with the stale tag: 1 result.
-    act(() => {
+    await act(async () => {
       resolveFirst(mockGetResult)
+      await firstRequest
     })
-    await actWait(50)
 
     expect(result.current.data).toEqual(secondResult)
   })

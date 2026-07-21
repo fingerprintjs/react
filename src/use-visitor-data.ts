@@ -7,7 +7,8 @@ import { GetOptions, GetResult } from '@fingerprint/agent'
 
 export interface UseVisitorDataConfig {
   /**
-   * Determines whether the `getData()` method will be called immediately after the hook mounts or not
+   * Controls automatic visitor data fetching. When enabled, the hook fetches after mounting, whenever the
+   * request options change, and whenever `immediate` changes from `false` to `true`.
    */
   immediate: boolean
 }
@@ -45,6 +46,7 @@ export function useVisitorData(
   const { getVisitorData } = useContext<FingerprintContextInterface>(FingerprintContext)
 
   const [currentGetOptions, setCurrentGetOptions] = useState(getOptions)
+  const [currentImmediate, setCurrentImmediate] = useState(immediate)
   const [queryState, setQueryState] = useState<VisitorQueryResult>({
     isLoading: immediate,
     data: undefined,
@@ -118,7 +120,8 @@ export function useVisitorData(
 
     let ignore = false
 
-    getVisitorData(currentGetOptions)
+    Promise.resolve()
+      .then(() => getVisitorData(currentGetOptions))
       .then((result) => {
         if (!ignore) {
           setSuccess(result)
@@ -138,14 +141,25 @@ export function useVisitorData(
     }
   }, [immediate, getVisitorData, currentGetOptions])
 
-  // When `getOptions` change, store them (triggering a refetch via the effect above) and reset to loading
-  // state right away: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  if (!Object.is(currentGetOptions, getOptions) && !areGetOptionsEqual(currentGetOptions, getOptions)) {
-    setCurrentGetOptions(getOptions)
+  // When automatic-fetch inputs change, store them and reset to loading during render so the effect can start
+  // the request without synchronously setting state: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const didImmediateChange = currentImmediate !== immediate
+  const didGetOptionsChange =
+    !Object.is(currentGetOptions, getOptions) && !areGetOptionsEqual(currentGetOptions, getOptions)
 
-    if (immediate) {
-      setLoading()
-    }
+  if (didImmediateChange) {
+    setCurrentImmediate(immediate)
+  }
+
+  if (didGetOptionsChange) {
+    setCurrentGetOptions(getOptions)
+  }
+
+  if (immediate && (didImmediateChange || didGetOptionsChange)) {
+    setLoading()
+  } else if (didImmediateChange) {
+    // Disabling automatic fetching clears loading while the pending response is ignored.
+    setQueryState((state) => ({ ...state, isLoading: false }))
   }
 
   return useMemo(

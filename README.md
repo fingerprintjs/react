@@ -129,7 +129,6 @@ export default App
 
 The `useVisitorData` hook also returns a `getData` method you can use to make an API call on command.
 
-- You can pass `{ immediate: false }` to `useVisitorData` to disable automatic visitor identification on render.
 
 Both `useVisitorData` and `getData` accept all the [get options](https://docs.fingerprint.com/reference/js-agent-get-function#get-options) available in the JavaScript agent `get` function.
 
@@ -184,6 +183,8 @@ function App() {
 export default App
 ```
 
+- You can pass `{ immediate: false }` to disable automatic identification and call `getData` manually instead.
+  - By default (`{ immediate: true }`), the hook automatically identifies the visitor after mounting and whenever its request options change. Changing `immediate` from `false` to `true` also starts an identification request with the latest options.
 - See the full code example in the [examples folder](./examples/).
 - See our [Use cases](https://demo.fingerprint.com) page for [open-source](https://github.com/fingerprintjs/fingerprintjs-pro-use-cases) real-world examples of using Fingerprint to detect fraud and streamline user experiences.
 
