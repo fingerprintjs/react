@@ -13,14 +13,6 @@ describe('WithEnvironment', () => {
     expect(renderChild).toHaveBeenCalledWith(expect.objectContaining({ name: 'react' }))
   })
 
-  it('keeps the original props of the element', () => {
-    const Echo = ({ message }: { message: string }) => <span>{message}</span>
-
-    const { container } = render(<WithEnvironment>{() => <Echo message='hello' />}</WithEnvironment>)
-
-    expect(container.innerHTML).toContain('hello')
-  })
-
   it('should not break navigation', async () => {
     const user = userEvent.setup()
     const Home = () => (

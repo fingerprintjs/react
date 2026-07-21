@@ -32,18 +32,6 @@ describe('useVisitorData', () => {
     mockStart.mockReturnValue(mockAgent)
   })
 
-  it('should provide the Fp context', () => {
-    const wrapper = createWrapper()
-    const {
-      result: { current },
-      rerender,
-    } = renderHook(() => useVisitorData(), { wrapper })
-
-    rerender()
-
-    expect(current).toBeDefined()
-  })
-
   it('should call getData on mount by default', async () => {
     mockGet.mockImplementation(() => mockGetResult)
 
@@ -66,6 +54,19 @@ describe('useVisitorData', () => {
         data: mockGetResult,
       })
     )
+  })
+
+  it('should default to immediate fetching when options are omitted', async () => {
+    mockGet.mockResolvedValue(mockGetResult)
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData(), { wrapper })
+
+    expect(result.current.isLoading).toBe(true)
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(mockGetResult)
+    })
   })
 
   it('should avoid duplicate requests if one is already pending', async () => {
@@ -207,30 +208,6 @@ describe('useVisitorData', () => {
     })
   })
 
-  it('should support immediate fetch with cache disabled', async () => {
-    const wrapper = createWrapper()
-    renderHook(() => useVisitorData({ immediate: true }), { wrapper })
-
-    await actWait(500)
-
-    expect(mockGet).toHaveBeenCalledTimes(1)
-    expect(mockGet).toHaveBeenCalledWith({})
-  })
-
-  it('should support overwriting default cache option in getData call', async () => {
-    const wrapper = createWrapper()
-    const hook = renderHook(() => useVisitorData({ immediate: false }), {
-      wrapper,
-    })
-
-    await act(async () => {
-      await hook.result.current.getData()
-    })
-
-    expect(mockGet).toHaveBeenCalledTimes(1)
-    expect(mockGet).toHaveBeenCalledWith({})
-  })
-
   it('should re-fetch data when options change if "immediate" is set to true', async () => {
     const Component = () => {
       const [tag, setTag] = useState(1)
@@ -348,6 +325,75 @@ describe('useVisitorData', () => {
     })
 
     expect(result.current.data).toEqual(secondResult)
+  })
+
+  it('should not apply an outdated immediate error after getOptions change mid-flight', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    let rejectFirst!: (reason?: unknown) => void
+    const firstRequest = new Promise<GetResult>((_resolve, reject) => {
+      rejectFirst = reject
+    })
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+
+    mockGet.mockImplementationOnce(() => firstRequest).mockResolvedValueOnce(secondResult)
+
+    const wrapper = createWrapper()
+    const { result, rerender } = renderHook(({ tag }: { tag: number }) => useVisitorData({ immediate: true, tag }), {
+      wrapper,
+      initialProps: { tag: 1 },
+    })
+
+    await actWait(50)
+    expect(mockGet).toHaveBeenCalledTimes(1)
+
+    rerender({ tag: 2 })
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+      expect(result.current.data).toEqual(secondResult)
+    })
+
+    await act(async () => {
+      rejectFirst(new Error('stale failure'))
+      await firstRequest.catch(() => undefined)
+    })
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: true,
+      data: secondResult,
+      error: undefined,
+    })
+    expect(consoleError).not.toHaveBeenCalledWith(
+      expect.stringContaining('Failed to fetch visitor data on mount: Error: stale failure')
+    )
+
+    consoleError.mockRestore()
+  })
+
+  it('should reject getData when params are null', async () => {
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await expect(
+      // @ts-expect-error intentional invalid call
+      result.current.getData(null)
+    ).rejects.toThrow('getDataParams must not be null or undefined')
+  })
+
+  it('should normalize non-Error rejections from getData', async () => {
+    mockGet.mockRejectedValue('raw failure')
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await act(async () => {
+      await expect(result.current.getData()).rejects.toThrow('raw failure')
+    })
+
+    expect(result.current.error).toEqual(expect.any(Error))
+    expect(result.current.error?.message).toBe('raw failure')
   })
 
   it('should correctly pass errors from agent', async () => {

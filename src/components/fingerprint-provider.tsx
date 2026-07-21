@@ -13,6 +13,14 @@ export interface FingerprintProviderOptions extends StartOptions {
    * since it can be triggered too often (e.g. on every render) and negatively affect performance of the JS agent.
    */
   forceRebuild?: boolean
+  /**
+   * Optional custom agent loader. When provided, its `start` is used instead of the default agent.
+   */
+  customAgent?: Pick<typeof Loader, 'start'>
+  /**
+   * Default `agent.get()` options merged into every visitor data request from this provider.
+   */
+  getOptions?: GetOptions
 }
 
 /**
@@ -40,19 +48,10 @@ interface ProviderWithEnvProps extends FingerprintProviderOptions {
    * Contains details about the env we're currently running in (e.g. framework, version)
    */
   env: EnvDetails
-  getOptions?: GetOptions
 }
 
 function isLoader(value: unknown): value is Pick<typeof Loader, 'start'> {
   return typeof value === 'object' && value !== null && 'start' in value && typeof value.start === 'function'
-}
-
-function getCustomLoader(props: Record<string, unknown>) {
-  if ('customAgent' in props && isLoader(props.customAgent)) {
-    return props.customAgent
-  }
-
-  return undefined
 }
 
 function ProviderWithEnv({
@@ -60,10 +59,11 @@ function ProviderWithEnv({
   forceRebuild,
   env,
   getOptions,
+  customAgent,
   ...agentOptions
 }: PropsWithChildren<ProviderWithEnvProps>) {
   const createClient = useCallback(() => {
-    const customLoader = getCustomLoader(agentOptions)
+    const customLoader = isLoader(customAgent) ? customAgent : undefined
 
     const envInfo = env.version !== undefined && env.version !== '' ? `${env.name}/${env.version}` : env.name
     const integrationInfo = `react-sdk/${packageInfo.version}/${envInfo}`
@@ -76,7 +76,7 @@ function ProviderWithEnv({
     }
 
     return customLoader ? customLoader.start(startParams) : start(startParams)
-  }, [agentOptions, env])
+  }, [agentOptions, customAgent, env])
 
   const clientRef = useRef<Agent | undefined>(undefined)
 
