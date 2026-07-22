@@ -120,20 +120,23 @@ export function useVisitorData(
 
     let ignore = false
 
-    Promise.resolve()
-      .then(() => getVisitorData(currentGetOptions))
-      .then((result) => {
+    const fetchVisitorData = async () => {
+      try {
+        const result = await getVisitorData(currentGetOptions)
         if (!ignore) {
           setSuccess(result)
         }
-      })
-      .catch((unknownError: unknown) => {
+      } catch (unknownError: unknown) {
         if (ignore) {
           return
         }
 
         const error = setFailure(unknownError)
         console.error(`Failed to fetch visitor data automatically: ${error}`)
+      }
+    }
+
+    void fetchVisitorData()
       })
 
     return () => {
