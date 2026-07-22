@@ -7,8 +7,8 @@ import { GetOptions, GetResult } from '@fingerprint/agent'
 
 export interface UseVisitorDataConfig {
   /**
-   * Controls automatic visitor data fetching. When enabled, the hook fetches after mounting, whenever the
-   * request options change, and whenever `immediate` changes from `false` to `true`.
+   * Controls automatic visitor data fetching. When `true`, the hook fetches after mounting, and whenever the
+   * request options change. When changed from `false` to `true`, visitor data is initiated after the current render.
    */
   immediate: boolean
 }
