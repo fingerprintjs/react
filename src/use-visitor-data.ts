@@ -7,8 +7,8 @@ import { GetOptions, GetResult } from '@fingerprint/agent'
 
 export interface UseVisitorDataConfig {
   /**
-   * Controls automatic visitor data fetching. When enabled, the hook fetches after mounting, whenever the
-   * request options change, and whenever `immediate` changes from `false` to `true`.
+   * Controls automatic visitor data fetching. When `true`, the hook fetches after mounting, and whenever the
+   * request options change. When changed from `false` to `true`, visitor data is initiated after the current render.
    */
   immediate: boolean
 }
@@ -114,32 +114,34 @@ export function useVisitorData(
    * https://react.dev/reference/react/useEffect#fetching-data-with-effects
    */
   useEffect(() => {
-    if (!immediate) {
+    if (!currentImmediate) {
       return
     }
 
     let ignore = false
 
-    Promise.resolve()
-      .then(() => getVisitorData(currentGetOptions))
-      .then((result) => {
+    const fetchVisitorData = async () => {
+      try {
+        const result = await getVisitorData(currentGetOptions)
         if (!ignore) {
           setSuccess(result)
         }
-      })
-      .catch((unknownError: unknown) => {
+      } catch (unknownError: unknown) {
         if (ignore) {
           return
         }
 
-        setFailure(unknownError)
-        console.error(`Failed to fetch visitor data on mount: ${String(unknownError)}`)
-      })
+        const error = setFailure(unknownError)
+        console.error(`Failed to fetch visitor data automatically: ${error}`)
+      }
+    }
+
+    void fetchVisitorData()
 
     return () => {
       ignore = true
     }
-  }, [immediate, getVisitorData, currentGetOptions])
+  }, [currentImmediate, getVisitorData, currentGetOptions])
 
   // When automatic-fetch inputs change, store them and reset to loading during render so the effect can start
   // the request without synchronously setting state: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
