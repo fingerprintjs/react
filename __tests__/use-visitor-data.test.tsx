@@ -1,6 +1,6 @@
 import { useVisitorData, UseVisitorDataReturn } from '../src'
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react'
-import { actWait, createWrapper, wait } from './helpers'
+import { createWrapper, wait } from './helpers'
 import { useEffect, useState } from 'react'
 import userEvent from '@testing-library/user-event'
 import * as agent from '@fingerprint/agent'
@@ -56,16 +56,16 @@ describe('useVisitorData', () => {
       })
     )
 
-    await actWait(500)
-
-    expect(mockStart).toHaveBeenCalled()
-    expect(mockGet).toHaveBeenCalled()
-    expect(result.current).toMatchObject(
-      expect.objectContaining({
-        isLoading: false,
-        data: mockGetResult,
-      })
-    )
+    await waitFor(() => {
+      expect(mockStart).toHaveBeenCalled()
+      expect(mockGet).toHaveBeenCalled()
+      expect(result.current).toMatchObject(
+        expect.objectContaining({
+          isLoading: false,
+          data: mockGetResult,
+        })
+      )
+    })
   })
 
   it('should avoid duplicate requests if one is already pending', async () => {
@@ -83,9 +83,9 @@ describe('useVisitorData', () => {
       })
     )
 
-    await Promise.all([result.current.getData(), result.current.getData()])
-
-    await actWait(500)
+    await act(async () => {
+      await Promise.all([result.current.getData(), result.current.getData()])
+    })
 
     expect(mockStart).toHaveBeenCalled()
     expect(mockGet).toHaveBeenCalledTimes(1)
@@ -211,9 +211,9 @@ describe('useVisitorData', () => {
     const wrapper = createWrapper()
     renderHook(() => useVisitorData({ immediate: true }), { wrapper })
 
-    await actWait(500)
-
-    expect(mockGet).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
     expect(mockGet).toHaveBeenCalledWith({})
   })
 
@@ -259,13 +259,15 @@ describe('useVisitorData', () => {
       </Wrapper>
     )
 
-    await actWait(1000)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
 
     await user.click(screen.getByRole('button', { name: 'Change options' }))
 
-    await actWait(1000)
-
-    expect(mockGet).toHaveBeenCalledTimes(2)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+    })
     expect(mockGet).toHaveBeenNthCalledWith(1, { tag: 1 })
     expect(mockGet).toHaveBeenNthCalledWith(2, { tag: 2 })
   })
@@ -277,13 +279,13 @@ describe('useVisitorData', () => {
     const wrapper = createWrapper()
     const { result } = renderHook(() => useVisitorData({ immediate: true }), { wrapper })
 
-    await actWait(500)
-
-    expect(result.current).toMatchObject({
-      isLoading: false,
-      isFetched: false,
-      data: undefined,
-      error: expect.objectContaining({ message: 'mount failed' }),
+    await waitFor(() => {
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        isFetched: false,
+        data: undefined,
+        error: expect.objectContaining({ message: 'mount failed' }),
+      })
     })
     expect(consoleError).toHaveBeenCalledWith('Failed to fetch visitor data automatically: Error: mount failed')
 
@@ -327,8 +329,9 @@ describe('useVisitorData', () => {
     })
 
     // Mount started one in-flight request for tag: 1.
-    await actWait(50)
-    expect(mockGet).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
     expect(result.current.isLoading).toBe(true)
 
     // Changing options cancels the previous effect and starts a new immediate fetch.
