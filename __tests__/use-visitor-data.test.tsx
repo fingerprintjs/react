@@ -231,6 +231,7 @@ describe('useVisitorData', () => {
     expect(mockGet).toHaveBeenCalledTimes(1)
     expect(mockGet).toHaveBeenCalledWith({})
   })
+
   it('should re-fetch data when options change if "immediate" is set to true', async () => {
     const Component = () => {
       const [tag, setTag] = useState(1)
