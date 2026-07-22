@@ -128,9 +128,6 @@ export default App
 </code><button type="button">Copy</button></pre>
 
 <p>The <code>useVisitorData</code> hook also returns a <code>getData</code> method you can use to make an API call on command.</p>
-<ul>
-<li>You can pass <code>{ immediate: false }</code> to <code>useVisitorData</code> to disable automatic visitor identification on render.</li>
-</ul>
 <p>Both <code>useVisitorData</code> and <code>getData</code> accept all the <a href="https://docs.fingerprint.com/reference/js-agent-get-function#get-options">get options</a> available in the JavaScript agent <code>get</code> function.</p>
 <p>The returned v4 visitor data uses raw response field names in snake_case, for example <code>visitor_id</code> and <code>event_id</code>.</p>
 <pre><code class="jsx">// src/App.js
@@ -182,6 +179,8 @@ export default App
 </code><button type="button">Copy</button></pre>
 
 <ul>
+<li>You can pass <code>{ immediate: false }</code> to disable automatic identification and call <code>getData</code> manually instead.</li>
+<li>By default (<code>{ immediate: true }</code>), the hook automatically identifies the visitor after mounting and whenever its request options change. Changing <code>immediate</code> from <code>false</code> to <code>true</code> also starts an identification request with the latest options.</li>
 <li>See the full code example in the <a href="media/examples">examples folder</a>.</li>
 <li>See our <a href="https://demo.fingerprint.com">Use cases</a> page for <a href="https://github.com/fingerprintjs/fingerprintjs-pro-use-cases">open-source</a> real-world examples of using Fingerprint to detect fraud and streamline user experiences.</li>
 </ul>
