@@ -114,7 +114,7 @@ export function useVisitorData(
    * https://react.dev/reference/react/useEffect#fetching-data-with-effects
    */
   useEffect(() => {
-    if (!immediate) {
+    if (!currentImmediate) {
       return
     }
 
@@ -137,12 +137,11 @@ export function useVisitorData(
     }
 
     void fetchVisitorData()
-      })
 
     return () => {
       ignore = true
     }
-  }, [immediate, getVisitorData, currentGetOptions])
+  }, [currentImmediate, getVisitorData, currentGetOptions])
 
   // When automatic-fetch inputs change, store them and reset to loading during render so the effect can start
   // the request without synchronously setting state: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
