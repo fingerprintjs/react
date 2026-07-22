@@ -1,5 +1,10 @@
 ---
-'@fingerprint/react': patch
+'@fingerprint/react': minor
 ---
 
-Prevent stale automatic `useVisitorData` requests from overwriting newer state and keep loading state synchronized when `immediate` changes.
+Behavior bug fixes:
+
+- Stale automatic `useVisitorData` requests no longer overwrite newer state. 
+- Loading state is now correctly synchronized when `immediate` changes.
+
+We recommend to double-check that your implementation isn't relying on the previous incorrect behavior when upgrading. 
