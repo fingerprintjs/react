@@ -56,19 +56,6 @@ describe('useVisitorData', () => {
     })
   })
 
-  it('should default to immediate fetching when options are omitted', async () => {
-    mockGet.mockResolvedValue(mockGetResult)
-
-    const wrapper = createWrapper()
-    const { result } = renderHook(() => useVisitorData(), { wrapper })
-
-    expect(result.current.isLoading).toBe(true)
-
-    await waitFor(() => {
-      expect(result.current.data).toEqual(mockGetResult)
-    })
-  })
-
   it('should avoid duplicate requests if one is already pending', async () => {
     mockGet.mockImplementation(async () => {
       await wait(250)

@@ -13,14 +13,6 @@ export interface FingerprintProviderOptions extends StartOptions {
    * since it can be triggered too often (e.g. on every render) and negatively affect performance of the JS agent.
    */
   forceRebuild?: boolean
-  /**
-   * Optional custom agent loader. When provided, its `start` is used instead of the default agent.
-   */
-  customAgent?: Pick<typeof Loader, 'start'>
-  /**
-   * Default `agent.get()` options merged into every visitor data request from this provider.
-   */
-  getOptions?: GetOptions
 }
 
 /**
@@ -48,6 +40,8 @@ interface ProviderWithEnvProps extends FingerprintProviderOptions {
    * Contains details about the env we're currently running in (e.g. framework, version)
    */
   env: EnvDetails
+  getOptions?: GetOptions
+  customAgent?: Pick<typeof Loader, 'start'>
 }
 
 function isLoader(value: unknown): value is Pick<typeof Loader, 'start'> {
