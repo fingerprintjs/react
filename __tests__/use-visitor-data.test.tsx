@@ -411,9 +411,9 @@ describe('useVisitorData', () => {
     expect(result.current.error?.message).toBe('raw failure')
   })
 
-  it('should correctly pass errors from agent', async () => {
-    const ERROR_CLIENT_TIMEOUT = 'timeout'
-    mockGet.mockRejectedValue(new Error(ERROR_CLIENT_TIMEOUT))
+  it('should preserve Error instances from agent', async () => {
+    const error = new Error('timeout')
+    mockGet.mockRejectedValue(error)
 
     const wrapper = createWrapper()
     const hook = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
@@ -421,10 +421,10 @@ describe('useVisitorData', () => {
     await act(async () => {
       const promise = hook.result.current.getData()
 
-      await expect(promise).rejects.toThrow(ERROR_CLIENT_TIMEOUT)
+      await expect(promise).rejects.toBe(error)
     })
 
-    expect(hook.result.current.error?.message).toBe(ERROR_CLIENT_TIMEOUT)
+    expect(hook.result.current.error).toBe(error)
   })
 
   it('`getVisitorData` `getOptions` should be passed from `getVisitorData` `getOptions`', async () => {
