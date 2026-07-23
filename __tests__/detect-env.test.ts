@@ -75,7 +75,7 @@ describe('Detect user env', () => {
     })
 
     it('should skip Next detection when window is unavailable', () => {
-      const originalWindow = globalThis.window
+      const originalWindowDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'window')
       Object.defineProperty(globalThis, 'window', {
         value: undefined,
         configurable: true,
@@ -90,11 +90,11 @@ describe('Detect user env', () => {
           name: Env.React,
         })
       } finally {
-        Object.defineProperty(globalThis, 'window', {
-          value: originalWindow,
-          configurable: true,
-          writable: true,
-        })
+        if (originalWindowDescriptor) {
+          Object.defineProperty(globalThis, 'window', originalWindowDescriptor)
+        } else {
+          Reflect.deleteProperty(globalThis, 'window')
+        }
       }
     })
   })
