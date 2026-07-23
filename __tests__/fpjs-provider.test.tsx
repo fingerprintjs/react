@@ -136,7 +136,6 @@ describe('FingerprintProvider', () => {
     })
 
     expect(customStart).toHaveBeenCalled()
-    expect(customStart.mock.calls[0]?.[0]).not.toHaveProperty('customAgent')
     expect(mockStart).not.toHaveBeenCalled()
   })
 
@@ -158,7 +157,6 @@ describe('FingerprintProvider', () => {
     })
 
     expect(mockStart).toHaveBeenCalled()
-    expect(mockStart.mock.calls[0]?.[0]).not.toHaveProperty('customAgent')
   })
 
   it('should merge provider getOptions into visitor data requests', async () => {

@@ -41,11 +41,18 @@ interface ProviderWithEnvProps extends FingerprintProviderOptions {
    */
   env: EnvDetails
   getOptions?: GetOptions
-  customAgent?: Pick<typeof Loader, 'start'>
 }
 
 function isLoader(value: unknown): value is Pick<typeof Loader, 'start'> {
   return typeof value === 'object' && value !== null && 'start' in value && typeof value.start === 'function'
+}
+
+function getCustomLoader(props: Record<string, unknown>) {
+  if ('customAgent' in props && isLoader(props.customAgent)) {
+    return props.customAgent
+  }
+
+  return undefined
 }
 
 function ProviderWithEnv({
@@ -53,11 +60,10 @@ function ProviderWithEnv({
   forceRebuild,
   env,
   getOptions,
-  customAgent,
   ...agentOptions
 }: PropsWithChildren<ProviderWithEnvProps>) {
   const createClient = useCallback(() => {
-    const customLoader = isLoader(customAgent) ? customAgent : undefined
+    const customLoader = getCustomLoader(agentOptions)
 
     const envInfo = env.version !== undefined && env.version !== '' ? `${env.name}/${env.version}` : env.name
     const integrationInfo = `react-sdk/${packageInfo.version}/${envInfo}`
@@ -70,7 +76,7 @@ function ProviderWithEnv({
     }
 
     return customLoader ? customLoader.start(startParams) : start(startParams)
-  }, [agentOptions, customAgent, env])
+  }, [agentOptions, env])
 
   const clientRef = useRef<Agent | undefined>(undefined)
 
