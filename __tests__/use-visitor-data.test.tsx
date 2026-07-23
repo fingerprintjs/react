@@ -27,6 +27,7 @@ const mockStart = vi.mocked(agent.start)
 
 describe('useVisitorData', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     vi.resetAllMocks()
 
     mockStart.mockReturnValue(mockAgent)
