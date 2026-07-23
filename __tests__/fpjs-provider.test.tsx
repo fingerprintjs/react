@@ -1,7 +1,7 @@
 import { PropsWithChildren, useContext } from 'react'
 import { act, render, renderHook } from '@testing-library/react'
 import { FingerprintContext, FingerprintProvider, FingerprintProviderOptions, useVisitorData } from '../src'
-import { createWrapper, getDefaultLoadOptions } from './helpers'
+import { createWrapper, getDefaultStartOptions } from './helpers'
 import { version } from '../package.json'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as agent from '@fingerprint/agent'
@@ -29,7 +29,7 @@ const InternalFingerprintProvider = (props: PropsWithChildren<InternalFingerprin
 
 const renderProvider = (props: Partial<FingerprintProviderOptions> = {}) =>
   render(
-    <FingerprintProvider {...getDefaultLoadOptions()} {...props}>
+    <FingerprintProvider {...getDefaultStartOptions()} {...props}>
       <div />
     </FingerprintProvider>
   )
@@ -54,7 +54,7 @@ describe('FingerprintProvider', () => {
   })
 
   it('should configure an instance of the Fp Agent', () => {
-    const loadOptions = getDefaultLoadOptions()
+    const loadOptions = getDefaultStartOptions()
     const wrapper = createWrapper({
       cache: {
         cachePrefix: 'cache',
@@ -124,7 +124,7 @@ describe('FingerprintProvider', () => {
   it('should use customAgent.start when a valid custom agent loader is provided', async () => {
     const customStart = vi.fn().mockReturnValue(mockAgent)
     const wrapper = ({ children }: PropsWithChildren) => (
-      <InternalFingerprintProvider {...getDefaultLoadOptions()} customAgent={{ start: customStart }}>
+      <InternalFingerprintProvider {...getDefaultStartOptions()} customAgent={{ start: customStart }}>
         {children}
       </InternalFingerprintProvider>
     )
@@ -142,7 +142,7 @@ describe('FingerprintProvider', () => {
   it('should fall back to the default agent when customAgent is invalid', async () => {
     const wrapper = ({ children }: PropsWithChildren) => (
       <InternalFingerprintProvider
-        {...getDefaultLoadOptions()}
+        {...getDefaultStartOptions()}
         // @ts-expect-error intentionally invalid runtime shape
         customAgent={{ start: 'not-a-function' }}
       >
@@ -162,7 +162,7 @@ describe('FingerprintProvider', () => {
   it('should merge provider getOptions into visitor data requests', async () => {
     const wrapper = ({ children }: PropsWithChildren) => (
       <InternalFingerprintProvider
-        {...getDefaultLoadOptions()}
+        {...getDefaultStartOptions()}
         getOptions={{ linkedId: 'from-provider', tag: { source: 'provider' } }}
       >
         {children}
