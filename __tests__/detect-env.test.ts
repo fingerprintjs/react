@@ -134,6 +134,7 @@ describe('getEnvironment', () => {
 
     expect(
       getEnvironmentFresh({
+        // absence of classRenderReceivesAnyArguments is React signal
         context: { classRenderReceivesAnyArguments: false },
       })
     ).toEqual({
