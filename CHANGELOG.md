@@ -1,5 +1,22 @@
 # Fingerprint React SDK
 
+## 3.1.0
+
+### Minor Changes
+
+- Behavior bug fixes:
+
+  - Stale automatic `useVisitorData` requests (when `immediate` changes from `true` to `false` during an automatic request) no longer overwrite state (the result is ignored).
+  - Loading state is now correctly synchronized when `immediate` changes.
+
+  We recommend double-checking that your implementation isn't relying on the previous incorrect behavior when upgrading. ([ba26003](https://github.com/fingerprintjs/react/commit/ba260035e804c52bf49f72c03410ecfd12310b9c))
+
+- Add support for React 19 and Next.js 16. The `react` peer range now accepts `>=18 <20`. ([5307b3b](https://github.com/fingerprintjs/react/commit/5307b3b8af08e330444ff148814873a01b6f1e02))
+
+### Patch Changes
+
+- Bump `@fingerprint/agent` dependency to `^4.1.2` and drop the `fast-deep-equal` runtime dependency in favor of an internal cache-key comparison. ([87b776f](https://github.com/fingerprintjs/react/commit/87b776f0920fe6a1663612f7d0a5d88256d64f5e))
+
 ## 3.0.1-test.0
 
 ### Patch Changes
