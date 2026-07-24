@@ -27,31 +27,21 @@ const mockStart = vi.mocked(agent.start)
 
 describe('useVisitorData', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     vi.resetAllMocks()
 
     mockStart.mockReturnValue(mockAgent)
   })
 
-  it('should provide the Fp context', () => {
-    const wrapper = createWrapper()
-    const {
-      result: { current },
-      rerender,
-    } = renderHook(() => useVisitorData(), { wrapper })
-
-    rerender()
-
-    expect(current).toBeDefined()
-  })
-
-  it('should call getData on mount by default', async () => {
+  it('should fetch on mount when called without options', async () => {
     mockGet.mockImplementation(() => mockGetResult)
 
     const wrapper = createWrapper()
-    const { result } = renderHook(() => useVisitorData({ immediate: true }), { wrapper })
+    const { result } = renderHook(() => useVisitorData(), { wrapper })
     expect(result.current).toMatchObject(
       expect.objectContaining({
         isLoading: true,
+        isFetched: false,
         data: undefined,
       })
     )
@@ -62,6 +52,7 @@ describe('useVisitorData', () => {
       expect(result.current).toMatchObject(
         expect.objectContaining({
           isLoading: false,
+          isFetched: true,
           data: mockGetResult,
         })
       )
@@ -97,6 +88,24 @@ describe('useVisitorData', () => {
     )
   })
 
+  it('should allow a matching request again after the pending request settles', async () => {
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+    mockGet.mockResolvedValueOnce(mockGetResult).mockResolvedValueOnce(secondResult)
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await act(async () => {
+      await expect(result.current.getData({ linkedId: 'same-request' })).resolves.toEqual(mockGetResult)
+    })
+    await act(async () => {
+      await expect(result.current.getData({ linkedId: 'same-request' })).resolves.toEqual(secondResult)
+    })
+
+    expect(mockGet).toHaveBeenCalledTimes(2)
+    expect(result.current.data).toEqual(secondResult)
+  })
+
   it('should not deduplicate requests with distinct empty tag values', async () => {
     mockGet.mockImplementation(async () => {
       await wait(250)
@@ -113,6 +122,50 @@ describe('useVisitorData', () => {
     ])
 
     expect(mockGet).toHaveBeenCalledTimes(3)
+  })
+
+  it('should reset fetched data while a subsequent request is pending', async () => {
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+    let resolveSecondRequest!: (value: GetResult) => void
+    const secondRequest = new Promise<GetResult>((resolve) => {
+      resolveSecondRequest = resolve
+    })
+    mockGet.mockResolvedValueOnce(mockGetResult).mockReturnValueOnce(secondRequest)
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await act(async () => {
+      await result.current.getData()
+    })
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: true,
+      data: mockGetResult,
+      error: undefined,
+    })
+
+    let pendingRequest!: Promise<GetResult>
+    act(() => {
+      pendingRequest = result.current.getData()
+    })
+    expect(result.current).toMatchObject({
+      isLoading: true,
+      isFetched: false,
+      data: undefined,
+      error: undefined,
+    })
+
+    await act(async () => {
+      resolveSecondRequest(secondResult)
+      await pendingRequest
+    })
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: true,
+      data: secondResult,
+      error: undefined,
+    })
   })
 
   it("shouldn't call getData on mount if 'immediate' option is set to false", () => {
@@ -353,9 +406,79 @@ describe('useVisitorData', () => {
     expect(result.current.data).toEqual(secondResult)
   })
 
-  it('should correctly pass errors from agent', async () => {
-    const ERROR_CLIENT_TIMEOUT = 'timeout'
-    mockGet.mockRejectedValue(new Error(ERROR_CLIENT_TIMEOUT))
+  it('should not apply an outdated immediate error after getOptions change mid-flight', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    let rejectFirst!: (reason?: unknown) => void
+    const firstRequest = new Promise<GetResult>((_resolve, reject) => {
+      rejectFirst = reject
+    })
+    const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
+
+    mockGet.mockImplementationOnce(() => firstRequest).mockResolvedValueOnce(secondResult)
+
+    const wrapper = createWrapper()
+    const { result, rerender } = renderHook(({ tag }: { tag: number }) => useVisitorData({ immediate: true, tag }), {
+      wrapper,
+      initialProps: { tag: 1 },
+    })
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+
+    rerender({ tag: 2 })
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+      expect(result.current.data).toEqual(secondResult)
+    })
+
+    await act(async () => {
+      rejectFirst(new Error('stale failure'))
+      await firstRequest.catch(() => undefined)
+    })
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      isFetched: true,
+      data: secondResult,
+      error: undefined,
+    })
+    expect(consoleError).not.toHaveBeenCalledWith(
+      expect.stringContaining('Failed to fetch visitor data automatically: Error: stale failure')
+    )
+
+    consoleError.mockRestore()
+  })
+
+  it('should reject getData when params are null', async () => {
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await expect(
+      // @ts-expect-error intentional invalid call
+      result.current.getData(null)
+    ).rejects.toThrow('getDataParams must not be null or undefined')
+  })
+
+  it('should normalize non-Error rejections from getData', async () => {
+    mockGet.mockRejectedValue('raw failure')
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await act(async () => {
+      await expect(result.current.getData()).rejects.toThrow('raw failure')
+    })
+
+    expect(result.current.error).toEqual(expect.any(Error))
+    expect(result.current.error?.message).toBe('raw failure')
+  })
+
+  it('should preserve Error instances from agent', async () => {
+    const error = new Error('timeout')
+    mockGet.mockRejectedValue(error)
 
     const wrapper = createWrapper()
     const hook = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
@@ -363,10 +486,10 @@ describe('useVisitorData', () => {
     await act(async () => {
       const promise = hook.result.current.getData()
 
-      await expect(promise).rejects.toThrow(ERROR_CLIENT_TIMEOUT)
+      await expect(promise).rejects.toBe(error)
     })
 
-    expect(hook.result.current.error?.message).toBe(ERROR_CLIENT_TIMEOUT)
+    expect(hook.result.current.error).toBe(error)
   })
 
   it('`getVisitorData` `getOptions` should be passed from `getVisitorData` `getOptions`', async () => {
@@ -502,25 +625,30 @@ describe('useVisitorData', () => {
     expect(effectCount).toEqual(3)
   })
 
-  it('should treat tags with differently ordered object keys as equal', async () => {
-    const getDataValues: UseVisitorDataReturn['getData'][] = []
-    const Component = () => {
-      const [reverseKeys, setReverseKeys] = useState(false)
-      const { getData } = useVisitorData({
-        immediate: false,
-        tag: reverseKeys ? { second: 2, first: 1 } : { first: 1, second: 2 },
-      })
+  it('should not refetch for reordered options but refetch when a value changes', async () => {
+    mockGet.mockResolvedValue(mockGetResult)
 
-      getDataValues.push(getData)
+    const Component = () => {
+      const [tag, setTag] = useState({ nested: { first: 1, second: 2 } })
+      useVisitorData({ immediate: true, tag })
 
       return (
-        <button
-          onClick={() => {
-            setReverseKeys(true)
-          }}
-        >
-          Reverse keys
-        </button>
+        <>
+          <button
+            onClick={() => {
+              setTag({ nested: { second: 2, first: 1 } })
+            }}
+          >
+            Reorder options
+          </button>
+          <button
+            onClick={() => {
+              setTag({ nested: { second: 3, first: 1 } })
+            }}
+          >
+            Change nested value
+          </button>
+        </>
       )
     }
     const Wrapper = createWrapper()
@@ -531,9 +659,23 @@ describe('useVisitorData', () => {
         <Component />
       </Wrapper>
     )
-    await user.click(screen.getByRole('button', { name: 'Reverse keys' }))
 
-    expect(getDataValues).toHaveLength(2)
-    expect(getDataValues[1]).toBe(getDataValues[0])
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Reorder options' }))
+    await act(async () => {
+      await wait(0)
+    })
+    expect(mockGet).toHaveBeenCalledTimes(1)
+
+    await user.click(screen.getByRole('button', { name: 'Change nested value' }))
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+    })
+    expect(mockGet).toHaveBeenLastCalledWith({
+      tag: { nested: { second: 3, first: 1 } },
+    })
   })
 })

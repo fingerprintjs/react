@@ -1,14 +1,14 @@
 import { PropsWithChildren } from 'react'
 import { FingerprintProvider, FingerprintProviderOptions } from '../src'
 
-export const getDefaultLoadOptions = () => ({
+export const getDefaultStartOptions = () => ({
   apiKey: 'test_api_key',
 })
 
 export const createWrapper =
   (providerProps: Partial<FingerprintProviderOptions> = {}) =>
   ({ children }: PropsWithChildren<object>) => (
-    <FingerprintProvider {...getDefaultLoadOptions()} {...providerProps}>
+    <FingerprintProvider {...getDefaultStartOptions()} {...providerProps}>
       {children}
     </FingerprintProvider>
   )
