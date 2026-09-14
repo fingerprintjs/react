@@ -1,5 +1,11 @@
 # Fingerprint React SDK
 
+## 3.2.0
+
+### Minor Changes
+
+- Remove the `postinstall` script for detecting framework version. ([ac89eb5](https://github.com/fingerprintjs/react/commit/ac89eb51208a2cd08111077e2759cce2a289bcd0))
+
 ## 3.1.0
 
 ### Minor Changes
