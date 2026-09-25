@@ -34,6 +34,7 @@ Fingerprint is a device intelligence platform offering industry-leading accuracy
   - [Linking and tagging information](#linking-and-tagging-information)
   - [Error handling](#error-handling)
   - [API Reference](#api-reference)
+  - [Version support](#version-support)
   - [Support and feedback](#support-and-feedback)
   - [License](#license)
 
@@ -215,6 +216,13 @@ The `getData` function throws errors directly from the JS Agent without changing
 ## API Reference
 
 See the full [generated API reference](https://fingerprintjs.github.io/react/).
+
+## Version support
+
+| SDK major version | JS Agent version | Status | End of support |
+|---|---|---|---|
+| v3.x (current) | [v4](https://docs.fingerprint.com/reference/js-agent) | Supported | - |
+| v1.x-v2.x | [v3](https://docs.fingerprint.com/reference/v3/javascript-agent) | Deprecated (security fixes only). See the [migration guide](https://docs.fingerprint.com/docs/react#migration-guide-for-react-sdk-v3-0-0) | To be decided |
 
 ## Support and feedback
 
