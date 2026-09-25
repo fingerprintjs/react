@@ -222,7 +222,7 @@ See the full [generated API reference](https://fingerprintjs.github.io/react/).
 | SDK major version | JS Agent version | Status | End of support |
 |---|---|---|---|
 | v3.x (current) | [v4](https://docs.fingerprint.com/reference/js-agent) | Supported | - |
-| v1.x-v2.x | [v3](https://docs.fingerprint.com/reference/v3/javascript-agent) | Deprecated (security fixes only). See the [migration guide](https://docs.fingerprint.com/docs/react#migration-guide-for-react-sdk-v3-0-0) | To be decided |
+| v1.x-v2.x | [v3](https://docs.fingerprint.com/reference/v3/javascript-agent) | Deprecated (security fixes only). See the [migration guide](https://docs.fingerprint.com/docs/react#migration-guide-for-react-sdk-v3-0-0). | To be decided |
 
 ## Support and feedback
 
