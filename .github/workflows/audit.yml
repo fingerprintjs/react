@@ -1,0 +1,29 @@
+# Fail on critical advisories in runtime dependencies.
+# Runs daily too, because new advisories appear without any code change.
+# https://pnpm.io/cli/audit
+name: Dependency audit
+on:
+  pull_request:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: pnpm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Reads pnpm-lock.yaml, no install needed
+      - name: Audit runtime dependencies
+        run: pnpm audit --prod --audit-level critical
