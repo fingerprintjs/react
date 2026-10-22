@@ -29,3 +29,14 @@ allowBuilds:
   esbuild: true
   fsevents: false
   sharp: true
+
+# Force patched versions of transitive deps that only the preact example's
+# build tool (preact-cli, unmaintained) pulls in, because its parents pin
+# vulnerable ranges. `pnpm audit` rates these advisories critical:
+# https://github.com/advisories/GHSA-76p3-8jx3-jpfq (loader-utils)
+# https://github.com/advisories/GHSA-fjxv-7rqg-78g4 (form-data)
+# https://github.com/advisories/GHSA-23hp-3jrh-7fpw (tar)
+overrides:
+  loader-utils@<1.4.1: ^1.4.2
+  form-data@<2.5.4: ^2.5.5
+  tar@<7.5.19: ^7.5.19
