@@ -30,8 +30,8 @@ importers:
   .:
     dependencies:
       '@fingerprint/agent':
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: ^4.1.6
+        version: 4.1.6
     devDependencies:
       '@changesets/cli':
         specifier: ^2.31.1
@@ -2072,8 +2072,8 @@ packages:
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@fingerprint/agent@4.1.2':
-    resolution: {integrity: sha512-dtfc2XSa4ag9hNMnpmoeTiVzLzmKneUdzwATcEj6/SeVFQCDcSFsugs2lQ7kLZlJwt9+9cJXMHVsrU5JrqPexw==}
+  '@fingerprint/agent@4.1.6':
+    resolution: {integrity: sha512-Ro7IYCaHhTv+TqnB6Hmv33kNQm1Q+Cs3xEqkxwsjfBkS8z2zb338fHWXK9Ef+qapl/qX2mCCIbjml+fIy9XCKg==}
 
   '@fingerprintjs/changesets-changelog-format@0.2.0':
     resolution: {integrity: sha512-1jI+J1r8OKUtjlFfQW4bmQ8u4E1097zPaKw5fUCgAcahLPgwW4Ae+Keoc253CSyyaKgTu2v/wniUGchmPaXAsg==}
@@ -13130,7 +13130,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@fingerprint/agent@4.1.2': {}
+  '@fingerprint/agent@4.1.6': {}
 
   '@fingerprintjs/changesets-changelog-format@0.2.0':
     dependencies:

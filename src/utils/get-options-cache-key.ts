@@ -54,6 +54,7 @@ export function getOptionsCacheKey(options?: GetOptions): string {
 
   return JSON.stringify([
     serializeCacheValue(options.tag),
+    serializeCacheValue(options.tags),
     serializeCacheValue(options.linkedId),
     serializeCacheValue(options.timeout),
   ])
