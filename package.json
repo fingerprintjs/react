@@ -58,7 +58,7 @@
   },
   "homepage": "https://github.com/fingerprintjs/react#readme",
   "dependencies": {
-    "@fingerprint/agent": "^4.1.2"
+    "@fingerprint/agent": "^4.1.6"
   },
   "peerDependencies": {
     "react": ">=18 <20"

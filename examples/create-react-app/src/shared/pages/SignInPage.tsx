@@ -5,9 +5,9 @@ import VisitorDataPresenter from '../components/VisitorDataPresenter'
 function SignInPage() {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
-  const [tag, setTag] = useState('')
+  const [tags, setTags] = useState('')
 
-  const { getData, data, isLoading, error } = useVisitorData({ tag, linkedId: login, immediate: false })
+  const { getData, data, isLoading, error } = useVisitorData({ tags, linkedId: login, immediate: false })
 
   return (
     <section className='body'>
@@ -59,17 +59,17 @@ function SignInPage() {
           />
         </div>
         <div className='form-control'>
-          <label htmlFor='tag'>Tag:</label>
+          <label htmlFor='tags'>Tags:</label>
           <input
-            id='tag'
+            id='tags'
             type='text'
-            name='tag'
-            value={tag}
+            name='tags'
+            value={tags}
             onChange={(e) => {
-              setTag(e.currentTarget.value)
+              setTags(e.currentTarget.value)
             }}
           />
-          <sub>will be used as tag param for the request</sub>
+          <sub>will be used as tags param for the request</sub>
         </div>
         <button type='submit'>Submit</button>
       </form>

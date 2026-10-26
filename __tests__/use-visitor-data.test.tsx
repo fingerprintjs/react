@@ -124,6 +124,22 @@ describe('useVisitorData', () => {
     expect(mockGet).toHaveBeenCalledTimes(3)
   })
 
+  it('should not deduplicate requests with different tags', async () => {
+    mockGet.mockImplementation(async () => {
+      await wait(250)
+      return mockGetResult
+    })
+
+    const wrapper = createWrapper()
+    const { result } = renderHook(() => useVisitorData({ immediate: false }), { wrapper })
+
+    await Promise.all([result.current.getData({ tags: { step: 1 } }), result.current.getData({ tags: { step: 2 } })])
+
+    expect(mockGet).toHaveBeenCalledTimes(2)
+    expect(mockGet).toHaveBeenNthCalledWith(1, { tags: { step: 1 } })
+    expect(mockGet).toHaveBeenNthCalledWith(2, { tags: { step: 2 } })
+  })
+
   it('should reset fetched data while a subsequent request is pending', async () => {
     const secondResult = { ...mockGetResult, visitor_id: 'second-visitor' }
     let resolveSecondRequest!: (value: GetResult) => void
@@ -323,6 +339,29 @@ describe('useVisitorData', () => {
     })
     expect(mockGet).toHaveBeenNthCalledWith(1, { tag: 1 })
     expect(mockGet).toHaveBeenNthCalledWith(2, { tag: 2 })
+  })
+
+  it('should re-fetch data when tags change if "immediate" is set to true', async () => {
+    const wrapper = createWrapper()
+    const { rerender } = renderHook(
+      ({ step }: { step: number }) => useVisitorData({ immediate: true, tags: { step } }),
+      {
+        wrapper,
+        initialProps: { step: 1 },
+      }
+    )
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(1)
+    })
+
+    rerender({ step: 2 })
+
+    await waitFor(() => {
+      expect(mockGet).toHaveBeenCalledTimes(2)
+    })
+    expect(mockGet).toHaveBeenNthCalledWith(1, { tags: { step: 1 } })
+    expect(mockGet).toHaveBeenNthCalledWith(2, { tags: { step: 2 } })
   })
 
   it('should set error state when immediate mount fetch fails', async () => {

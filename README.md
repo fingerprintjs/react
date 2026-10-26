@@ -191,16 +191,16 @@ export default App
 
 ## Linking and tagging information
 
-The visitor ID provided by Fingerprint Identification is especially useful when combined with information you already know about your users, for example, account IDs, order IDs, etc. To learn more about various applications of the `linkedId` and `tag`, see [Linking and tagging information](https://docs.fingerprint.com/docs/tagging-information).
+The visitor ID provided by Fingerprint Identification is especially useful when combined with information you already know about your users, for example, account IDs, order IDs, etc. To learn more about various applications of the `linkedId` and `tags`, see [Linking and tagging information](https://docs.fingerprint.com/docs/tagging-information).
 
-Associate the visitor ID with your data using the `linkedId` or `tag` parameter of the options object passed into the `useVisitorData()` hook or the `getData` function:
+Associate the visitor ID with your data using the `linkedId` or `tags` parameter of the options object passed into the `useVisitorData()` hook or the `getData` function:
 
 ```jsx
 // ...
 function App() {
   const { isLoading, error, getData } = useVisitorData({
     linkedId: 'user_1234',
-    tag: {
+    tags: {
       userAction: 'login',
       analyticsId: 'UA-5555-1111-1',
     },
@@ -208,6 +208,9 @@ function App() {
 }
 // ...
 ```
+
+> [!NOTE]
+> The `tag` option is deprecated in favor of `tags`. `tag` still works, but if both are provided, `tags` takes precedence.
 
 ## Error handling
 
