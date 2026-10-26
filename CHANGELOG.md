@@ -1,5 +1,15 @@
 # Fingerprint React SDK
 
+## 3.3.0
+
+### Minor Changes
+
+- Support `tags` in `useVisitorData` and deprecate `tag` ([7e66a5c](https://github.com/fingerprintjs/react/commit/7e66a5c34650c39c19d98e66a02437c054af68dd))
+
+### Patch Changes
+
+- Bump `@fingerprint/agent` dependency to `^4.1.6` ([7e66a5c](https://github.com/fingerprintjs/react/commit/7e66a5c34650c39c19d98e66a02437c054af68dd))
+
 ## 3.2.0
 
 ### Minor Changes
