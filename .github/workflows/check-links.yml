@@ -1,0 +1,24 @@
+name: Check links
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fingerprintjs/docs-link-checker@b8f0822d9a3f8e4a6325f899b3080a3244fa4a71 # main 2026-11-16
+        with:
+          files: |
+            README.md
+            contributing.md
+            e2e/**/*.md
+            examples/**/*.md
+            src/**/*.{ts,tsx}
+            __tests__/**/*.{ts,tsx}
+            examples/**/*.{ts,tsx}
